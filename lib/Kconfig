@@ -495,6 +495,11 @@ config SIGNATURE
 	  Digital signature verification. Currently only RSA is supported.
 	  Implementation is done using GnuPG MPI library
 
+config QRLIB
+	bool "QR encoding library"
+	help
+	  QR encoding library
+
 #
 # libfdt files, only selected if needed.
 #

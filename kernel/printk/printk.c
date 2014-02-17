@@ -46,6 +46,7 @@
 #include <linux/irq_work.h>
 #include <linux/utsname.h>
 #include <linux/ctype.h>
+#include <linux/print_oops.h>
 
 #include <asm/uaccess.h>
 
@@ -1856,6 +1857,19 @@ asmlinkage __visible int printk(const char *fmt, ...)
 	va_list args;
 	int r;
 
+#ifdef CONFIG_QR_OOPS
+	if (oops_in_progress)
+		print_err(fmt, args);
+#endif
+
+#ifdef CONFIG_KGDB_KDB
+	if (unlikely(kdb_trap_printk)) {
+		va_start(args, fmt);
+		r = vkdb_printf(fmt, args);
+		va_end(args);
+		return r;
+	}
+#endif
 	va_start(args, fmt);
 
 	/*

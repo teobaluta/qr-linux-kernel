@@ -18,7 +18,6 @@
 
 #include <asm/stacktrace.h>
 
-
 int panic_on_unrecovered_nmi;
 int panic_on_io_nmi;
 unsigned int code_bytes = 64;
@@ -156,6 +155,7 @@ static void print_trace_address(void *data, unsigned long addr, int reliable)
 {
 	touch_nmi_watchdog();
 	printk(data);
+	/* FIXME */
 	printk_stack_address(addr, reliable);
 }
 
@@ -170,6 +170,7 @@ show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
 		unsigned long *stack, unsigned long bp, char *log_lvl)
 {
 	printk("%sCall Trace:\n", log_lvl);
+	/* FIXME this should also dump into a buffer */
 	dump_trace(task, regs, stack, bp, &print_trace_ops, log_lvl);
 }
 
@@ -272,6 +273,7 @@ int __die(const char *str, struct pt_regs *regs, long err)
 			current->thread.trap_nr, SIGSEGV) == NOTIFY_STOP)
 		return 1;
 
+	/* FIXME this should probably also need to print into buffer */
 	print_modules();
 	show_regs(regs);
 #ifdef CONFIG_X86_32
@@ -288,6 +290,7 @@ int __die(const char *str, struct pt_regs *regs, long err)
 #else
 	/* Executive summary in case the oops scrolled away */
 	printk(KERN_ALERT "RIP ");
+	/* FIXME */
 	printk_address(regs->ip);
 	printk(" RSP <%016lx>\n", regs->sp);
 #endif
