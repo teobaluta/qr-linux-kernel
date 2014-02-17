@@ -24,6 +24,8 @@
 #include <linux/init.h>
 #include <linux/nmi.h>
 
+#include <linux/print_oops.h>
+
 #define PANIC_TIMER_STEP 100
 #define PANIC_BLINK_SPD 18
 
@@ -382,6 +384,7 @@ void print_oops_end_marker(void)
 	init_oops_id();
 	printk(KERN_WARNING "---[ end trace %016llx ]---\n",
 		(unsigned long long)oops_id);
+//	print_qr_err();
 }
 
 /*

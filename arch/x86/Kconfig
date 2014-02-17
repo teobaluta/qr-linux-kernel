@@ -128,6 +128,9 @@ config X86
 	select HAVE_IRQ_EXIT_ON_IRQ_STACK if X86_64
 	select HAVE_CC_STACKPROTECTOR
 
+config QR_OOPS
+	def_bool y
+
 config INSTRUCTION_DECODER
 	def_bool y
 	depends on KPROBES || PERF_EVENTS || UPROBES
