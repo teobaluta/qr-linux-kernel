@@ -3,9 +3,9 @@
 
 #include <linux/module.h>
 
-#define MAX_QR_BUF_LEN 4096
+#define QR_BUFSIZE 4096
 
-extern void print_err(const char *fmt, ...);
-extern void print_qr_err(void);
+void qr_append(char *text);
+void print_qr_err(void);
 
 #endif /* _PRINT_OPS_H */
