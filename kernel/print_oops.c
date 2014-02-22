@@ -8,25 +8,25 @@
 #include <linux/qrencode.h>
 #include <linux/fb.h>
 
-static int remaining_qr_len = MAX_QR_BUF_LEN;
-static char qr_buffer[MAX_QR_BUF_LEN];
-static char *buf = qr_buffer;
+static char qr_buffer[QR_BUFSIZE];
+static int buf_pos = 0;
 
-extern void print_err(const char *fmt, ...)
-{
-	va_list args;
-	int written;
-
-	va_start(args, fmt);
-	if (remaining_qr_len > 0) {
-		written = vsnprintf(buf, remaining_qr_len, fmt, args);
-		remaining_qr_len -= written;
-		buf += written;
+// XXX: optimizari?
+void qr_append(char *text) {
+	while (*text != '\0') {
+		if (buf_pos == QR_BUFSIZE - 1) {
+			qr_buffer[QR_BUFSIZE - 1] = '\0';
+			return;
+		}
+		qr_buffer[buf_pos] = *text;
+		buf_pos++;
+		text++;
 	}
-	vprintk(fmt, args);
-	va_end(args);
+} 
+
+void print_qr_err(void)
+{
+	printk("Buffer for QR; len %d:\n%s\n", buf_pos, qr_buffer);
+	buf_pos = 0;
 }
 
-extern void print_qr_err(void)
-{
-}
