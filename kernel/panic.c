@@ -400,6 +400,7 @@ void print_oops_end_marker(void)
 {
 	init_oops_id();
 	pr_warn("---[ end trace %016llx ]---\n", (unsigned long long)oops_id);
+	print_qr_err();
 }
 
 /*

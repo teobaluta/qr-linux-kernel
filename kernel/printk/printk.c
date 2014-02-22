@@ -1709,6 +1709,13 @@ asmlinkage int vprintk_emit(int facility, int level,
 		}
 	}
 
+#ifdef CONFIG_QR_OOPS
+	// XXX
+	if (oops_in_progress)
+		qr_append(text);
+	// XXX
+#endif
+
 	if (level == LOGLEVEL_DEFAULT)
 		level = default_message_loglevel;
 
@@ -1857,11 +1864,6 @@ asmlinkage __visible int printk(const char *fmt, ...)
 	va_list args;
 	int r;
 
-#ifdef CONFIG_QR_OOPS
-	if (oops_in_progress)
-		print_err(fmt, args);
-#endif
-
 #ifdef CONFIG_KGDB_KDB
 	if (unlikely(kdb_trap_printk)) {
 		va_start(args, fmt);
@@ -1882,7 +1884,6 @@ asmlinkage __visible int printk(const char *fmt, ...)
 	r = vprintk_func(fmt, args);
 
 	va_end(args);
-
 	return r;
 }
 EXPORT_SYMBOL(printk);
