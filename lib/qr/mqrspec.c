@@ -243,15 +243,9 @@ unsigned char *MQRspec_newFrame(int version)
 	if (version < 1 || version > MQRSPEC_VERSION_MAX)
 		return NULL;
 
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_lock(&frames_mutex);
-#endif
 	if (frames[version] == NULL) {
 		frames[version] = MQRspec_createFrame(version);
 	}
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_unlock(&frames_mutex);
-#endif
 	if (frames[version] == NULL)
 		return NULL;
 
@@ -268,14 +262,8 @@ void MQRspec_clearCache(void)
 {
 	int i;
 
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_lock(&frames_mutex);
-#endif
 	for (i = 1; i <= MQRSPEC_VERSION_MAX; i++) {
 		kfree(frames[i]);
 		frames[i] = NULL;
 	}
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_unlock(&frames_mutex);
-#endif
 }
