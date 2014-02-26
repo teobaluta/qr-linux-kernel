@@ -402,9 +402,6 @@ unsigned int QRspec_getFormatInfo(int mask, QRecLevel level)
 /* C99 says that static storage shall be initialized to a null pointer
  * by compiler. */
 static unsigned char *frames[QRSPEC_VERSION_MAX + 1];
-#ifdef HAVE_LIBPTHREAD
-static pthread_mutex_t frames_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 /**
  * Put a finder pattern.
@@ -529,15 +526,9 @@ unsigned char *QRspec_newFrame(int version)
 	if (version < 1 || version > QRSPEC_VERSION_MAX)
 		return NULL;
 
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_lock(&frames_mutex);
-#endif
 	if (frames[version] == NULL) {
 		frames[version] = QRspec_createFrame(version);
 	}
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_unlock(&frames_mutex);
-#endif
 	if (frames[version] == NULL)
 		return NULL;
 
@@ -554,14 +545,8 @@ void QRspec_clearCache(void)
 {
 	int i;
 
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_lock(&frames_mutex);
-#endif
 	for (i = 1; i <= QRSPEC_VERSION_MAX; i++) {
 		kfree(frames[i]);
 		frames[i] = NULL;
 	}
-#ifdef HAVE_LIBPTHREAD
-	pthread_mutex_unlock(&frames_mutex);
-#endif
 }
