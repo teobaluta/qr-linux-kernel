@@ -54,9 +54,6 @@ struct _RS {
 };
 
 static RS *rslist = NULL;
-#ifdef HAVE_LIBPTHREAD
-static pthread_mutex_t rslist_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 static inline int modnn(RS * rs, int x)
 {
