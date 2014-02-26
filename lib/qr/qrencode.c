@@ -469,6 +469,7 @@ void QRcode_free(QRcode * qrcode)
 		kfree(qrcode);
 	}
 }
+EXPORT_SYMBOL_GPL(QRcode_free);
 
 static QRcode *QRcode_encodeMask(QRinput * input, int mask)
 {
@@ -650,6 +651,7 @@ QRcode *QRcode_encodeInput(QRinput * input)
 		return QRcode_encodeMask(input, -1);
 	}
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeInput);
 
 static QRcode *QRcode_encodeStringReal(const char *string, int version,
 				       QRecLevel level, int mqr,
@@ -695,6 +697,7 @@ QRcode *QRcode_encodeString(const char *string, int version, QRecLevel level,
 	return QRcode_encodeStringReal(string, version, level, 0, hint,
 				       casesensitive);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeString);
 
 QRcode *QRcode_encodeStringMQR(const char *string, int version, QRecLevel level,
 			       QRencodeMode hint, int casesensitive)
@@ -702,6 +705,7 @@ QRcode *QRcode_encodeStringMQR(const char *string, int version, QRecLevel level,
 	return QRcode_encodeStringReal(string, version, level, 1, hint,
 				       casesensitive);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeStringMQR);
 
 static QRcode *QRcode_encodeDataReal(const unsigned char *data, int length,
 				     int version, QRecLevel level, int mqr)
@@ -741,6 +745,7 @@ QRcode *QRcode_encodeData(int size, const unsigned char *data, int version,
 {
 	return QRcode_encodeDataReal(data, size, version, level, 0);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeData);
 
 QRcode *QRcode_encodeString8bit(const char *string, int version,
 				QRecLevel level)
@@ -754,12 +759,14 @@ QRcode *QRcode_encodeString8bit(const char *string, int version,
 	return QRcode_encodeDataReal((unsigned char *)string, strlen(string),
 				     version, level, 0);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeString8bit);
 
 QRcode *QRcode_encodeDataMQR(int size, const unsigned char *data, int version,
 			     QRecLevel level)
 {
 	return QRcode_encodeDataReal(data, size, version, level, 1);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeDataMQR);
 
 QRcode *QRcode_encodeString8bitMQR(const char *string, int version,
 				   QRecLevel level)
@@ -773,6 +780,7 @@ QRcode *QRcode_encodeString8bitMQR(const char *string, int version,
 	return QRcode_encodeDataReal((unsigned char *)string, strlen(string),
 				     version, level, 1);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeString8bitMQR);
 
 /******************************************************************************
  * Structured QR-code encoding
@@ -810,6 +818,7 @@ void QRcode_List_free(QRcode_List * qrlist)
 		list = next;
 	}
 }
+EXPORT_SYMBOL_GPL(QRcode_List_free);
 
 int QRcode_List_size(QRcode_List * qrlist)
 {
@@ -823,6 +832,7 @@ int QRcode_List_size(QRcode_List * qrlist)
 
 	return size;
 }
+EXPORT_SYMBOL_GPL(QRcode_List_size);
 
 #if 0
 static unsigned char QRcode_parity(const char *str, int size)
@@ -871,6 +881,7 @@ ABORT:
 	QRcode_List_free(head);
 	return NULL;
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeInputStructured);
 
 static QRcode_List *QRcode_encodeInputToStructured(QRinput * input)
 {
@@ -936,6 +947,7 @@ QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data,
 	return QRcode_encodeDataStructuredReal(size, data, version, level, 1,
 					       QR_MODE_NUL, 0);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeDataStructured);
 
 QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version,
 					       QRecLevel level)
@@ -950,6 +962,7 @@ QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version,
 					   (unsigned char *)string, version,
 					   level);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeString8bitStructured);
 
 QRcode_List *QRcode_encodeStringStructured(const char *string, int version,
 					   QRecLevel level, QRencodeMode hint,
@@ -965,6 +978,7 @@ QRcode_List *QRcode_encodeStringStructured(const char *string, int version,
 					       (unsigned char *)string, version,
 					       level, 0, hint, casesensitive);
 }
+EXPORT_SYMBOL_GPL(QRcode_encodeStringStructured);
 
 /******************************************************************************
  * System utilities
