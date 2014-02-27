@@ -22,7 +22,7 @@
 #ifndef __QRINPUT_H__
 #define __QRINPUT_H__
 
-#include "qrencode.h"
+#include <linux/qrencode.h>
 #include "bitstream.h"
 
 int QRinput_isSplittableMode(QRencodeMode mode);
