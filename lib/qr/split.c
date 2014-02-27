@@ -29,7 +29,7 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 
-#include "qrencode.h"
+#include <linux/qrencode.h>
 #include "qrinput.h"
 #include "qrspec.h"
 #include "split.h"
