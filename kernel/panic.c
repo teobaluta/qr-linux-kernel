@@ -384,7 +384,9 @@ void print_oops_end_marker(void)
 	init_oops_id();
 	printk(KERN_WARNING "---[ end trace %016llx ]---\n",
 		(unsigned long long)oops_id);
+#ifdef CONFIG_QR_OOPS
 	print_qr_err();
+#endif
 }
 
 /*
