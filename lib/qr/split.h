@@ -28,7 +28,7 @@
 #ifndef __SPLIT_H__
 #define __SPLIT_H__
 
-#include "qrencode.h"
+#include <linux/qrencode.h>
 
 /**
  * Split the input string (null terminated) into QRinput.

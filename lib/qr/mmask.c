@@ -21,7 +21,8 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/types.h>
-#include "qrencode.h"
+
+#include <linux/qrencode.h>
 #include "mqrspec.h"
 #include "mmask.h"
 

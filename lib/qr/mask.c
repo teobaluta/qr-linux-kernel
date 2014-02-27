@@ -22,7 +22,8 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/types.h>
-#include "qrencode.h"
+
+#include <linux/qrencode.h>
 #include "qrspec.h"
 #include "mask.h"
 

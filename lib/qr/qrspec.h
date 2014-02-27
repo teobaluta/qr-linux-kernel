@@ -22,7 +22,7 @@
 #ifndef __QRSPEC_H__
 #define __QRSPEC_H__
 
-#include "qrencode.h"
+#include <linux/qrencode.h>
 
 /******************************************************************************
  * Version and capacity
