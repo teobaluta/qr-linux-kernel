@@ -7,9 +7,15 @@
 #include <linux/bug.h>
 #include <linux/qrencode.h>
 #include <linux/fb.h>
+#include <linux/zlib.h>
 
 static char qr_buffer[QR_BUFSIZE];
 static int buf_pos = 0;
+
+#define COMPR_LEVEL 6
+
+static DEFINE_MUTEX(compr_mutex);
+static struct z_stream_s stream;
 
 #define QQQ_WHITE 0x0F
 #define QQQ_BLACK 0x00
@@ -34,11 +40,64 @@ inline static int compute_w(struct fb_info *info, int qrw) {
 	return minxy / qrw / 3;
 }
 
+static int __init qr_compr_init(void)
+{
+	size_t size = max(zlib_deflate_workspacesize(MAX_WBITS, MAX_MEM_LEVEL),
+			zlib_inflate_workspacesize());
+	stream.workspace = vmalloc(size);
+	if (!stream.workspace)
+		return -ENOMEM;
+	return 0;
+}
+
+static void qr_compr_exit(void)
+{
+	vfree(stream.workspace);
+}
+
+static int qr_compress(void *in, void *out, size_t inlen, size_t outlen)
+{
+	int err, ret;
+
+	ret = -EIO;
+
+	err = qr_compr_init();
+	if (err != 0)
+		goto error;
+	mutex_lock(&compr_mutex);
+	err = zlib_deflateInit(&stream, COMPR_LEVEL);
+	if (err != Z_OK)
+		goto error;
+
+	stream.next_in = in;
+	stream.avail_in = inlen;
+	stream.total_in = 0;
+	stream.next_out = out;
+	stream.avail_out = outlen;
+	stream.total_out = 0;
+
+	err = zlib_deflate(&stream, Z_FINISH);
+	if (err != Z_STREAM_END)
+		goto error;
+
+	err = zlib_deflateEnd(&stream);
+	if (err != Z_OK)
+		goto error;
+
+	if (stream.total_out >= stream.total_in)
+		goto error;
+
+	ret = stream.total_out;
+error:
+	mutex_unlock(&compr_mutex);
+	return ret;
+}
+
 void print_qr_err(void)
 {
 	printk("Buffer for QR; len %d:\n%s\n", buf_pos, qr_buffer);
-	buf_pos = 0;
 
+	ssize_t compr_len;
 	struct fb_info *info;
 	struct fb_fillrect rect;
 	QRcode *qr;
@@ -47,11 +106,19 @@ void print_qr_err(void)
 	int w;
 	int is_black;
 
-	/* Truncate ooops to 300 chars */
-	qr_buffer[300] = '\0';
+	char compr_qr_buffer[buf_pos];
+#if 1
+	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
 
-	qr = QRcode_encodeString(
-	    qr_buffer, 0, QR_ECLEVEL_H, QR_MODE_8, 1);
+	if (compr_len < 0) {
+		printk(KERN_ALERT "compression error");
+		return;
+	}
+
+#endif
+
+#if 1
+	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 
 	info = registered_fb[0];
 	w = compute_w(info, qr->width);
@@ -96,5 +163,6 @@ void print_qr_err(void)
 	}
 
 	QRcode_free(qr);
+#endif
 }
 
