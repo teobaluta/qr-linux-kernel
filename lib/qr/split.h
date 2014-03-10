@@ -42,6 +42,6 @@
  * @throw ENOMEM unable to allocate memory for input objects.
  */
 extern int Split_splitStringToQRinput(const char *string, struct QRinput *input,
-		QRencodeMode hint, int casesensitive);
+		enum QRencodeMode hint, int casesensitive);
 
 #endif /* __SPLIT_H__ */

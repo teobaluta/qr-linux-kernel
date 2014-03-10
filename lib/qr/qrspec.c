@@ -91,18 +91,18 @@ static const QRspec_Capacity qrspecCapacity[QRSPEC_VERSION_MAX + 1] = {
 	{177, 3706, 0, {750, 1372, 2040, 2430}}	//40
 };
 
-int QRspec_getDataLength(int version, QRecLevel level)
+int QRspec_getDataLength(int version, enum QRecLevel level)
 {
 	return qrspecCapacity[version].words -
 	    qrspecCapacity[version].ec[level];
 }
 
-int QRspec_getECCLength(int version, QRecLevel level)
+int QRspec_getECCLength(int version, enum QRecLevel level)
 {
 	return qrspecCapacity[version].ec[level];
 }
 
-int QRspec_getMinimumVersion(int size, QRecLevel level)
+int QRspec_getMinimumVersion(int size, enum QRecLevel level)
 {
 	int i;
 	int words;
@@ -137,7 +137,7 @@ static const int lengthTableBits[4][3] = {
 	{8, 10, 12}
 };
 
-int QRspec_lengthIndicator(QRencodeMode mode, int version)
+int QRspec_lengthIndicator(enum QRencodeMode mode, int version)
 {
 	int l;
 
@@ -154,7 +154,7 @@ int QRspec_lengthIndicator(QRencodeMode mode, int version)
 	return lengthTableBits[mode][l];
 }
 
-int QRspec_maximumWords(QRencodeMode mode, int version)
+int QRspec_maximumWords(enum QRencodeMode mode, int version)
 {
 	int l;
 	int bits;
@@ -231,7 +231,7 @@ static const int eccTable[QRSPEC_VERSION_MAX + 1][4][2] = {
 	{{19, 6}, {18, 31}, {34, 34}, {20, 61}},	//40
 };
 
-void QRspec_getEccSpec(int version, QRecLevel level, int spec[5])
+void QRspec_getEccSpec(int version, enum QRecLevel level, int spec[5])
 {
 	int b1, b2;
 	int data, ecc;
@@ -384,7 +384,7 @@ static const unsigned int formatInfo[4][8] = {
 	{0x1689, 0x13be, 0x1ce7, 0x19d0, 0x0762, 0x0255, 0x0d0c, 0x083b}
 };
 
-unsigned int QRspec_getFormatInfo(int mask, QRecLevel level)
+unsigned int QRspec_getFormatInfo(int mask, enum QRecLevel level)
 {
 	if (mask < 0 || mask > 7)
 		return 0;

@@ -32,7 +32,7 @@
 /******************************************************************************
  * Utilities
  *****************************************************************************/
-int QRinput_isSplittableMode(QRencodeMode mode)
+int QRinput_isSplittableMode(enum QRencodeMode mode)
 {
 	return (mode >= QR_MODE_NUM && mode <= QR_MODE_KANJI);
 }
@@ -41,7 +41,7 @@ int QRinput_isSplittableMode(QRencodeMode mode)
  * Entry of input data
  *****************************************************************************/
 
-static struct QRinput_List *QRinput_List_newEntry(QRencodeMode mode, int size,
+static struct QRinput_List *QRinput_List_newEntry(enum QRencodeMode mode, int size,
 						  const unsigned char *data)
 {
 	struct QRinput_List *entry;
@@ -111,7 +111,7 @@ struct QRinput *QRinput_new(void)
 	return QRinput_new2(0, QR_ECLEVEL_L);
 }
 
-struct QRinput *QRinput_new2(int version, QRecLevel level)
+struct QRinput *QRinput_new2(int version, enum QRecLevel level)
 {
 	struct QRinput *input;
 	if (version < 0 || version > QRSPEC_VERSION_MAX || level > QR_ECLEVEL_H) {
@@ -132,7 +132,7 @@ struct QRinput *QRinput_new2(int version, QRecLevel level)
 	return input;
 }
 
-struct QRinput *QRinput_newMQR(int version, QRecLevel level)
+struct QRinput *QRinput_newMQR(int version, enum QRecLevel level)
 {
 	struct QRinput *input;
 
@@ -170,12 +170,12 @@ int QRinput_setVersion(struct QRinput *input, int version)
 	return 0;
 }
 
-QRecLevel QRinput_getErrorCorrectionLevel(struct QRinput * input)
+enum QRecLevel QRinput_getErrorCorrectionLevel(struct QRinput * input)
 {
 	return input->level;
 }
 
-int QRinput_setErrorCorrectionLevel(struct QRinput *input, QRecLevel level)
+int QRinput_setErrorCorrectionLevel(struct QRinput *input, enum QRecLevel level)
 {
 	if (input->mqr || level > QR_ECLEVEL_H) {
 		//errno = EINVAL;
@@ -188,7 +188,7 @@ int QRinput_setErrorCorrectionLevel(struct QRinput *input, QRecLevel level)
 }
 
 int QRinput_setVersionAndErrorCorrectionLevel(struct QRinput *input,
-					      int version, QRecLevel level)
+					      int version, enum QRecLevel level)
 {
 	if (input->mqr) {
 		if (version <= 0 || version > MQRSPEC_VERSION_MAX)
@@ -225,7 +225,7 @@ static void QRinput_appendEntry(struct QRinput *input,
 	entry->next = NULL;
 }
 
-int QRinput_append(struct QRinput *input, QRencodeMode mode, int size,
+int QRinput_append(struct QRinput *input, enum QRencodeMode mode, int size,
 		   const unsigned char *data)
 {
 	struct QRinput_List *entry;
@@ -956,7 +956,7 @@ ABORT:
  * Validation
  *****************************************************************************/
 
-int QRinput_check(QRencodeMode mode, int size, const unsigned char *data)
+int QRinput_check(enum QRencodeMode mode, int size, const unsigned char *data)
 {
 	if ((mode == QR_MODE_FNC1FIRST && size < 0) || size <= 0)
 		return -1;
@@ -1100,7 +1100,7 @@ static int QRinput_estimateVersion(struct QRinput *input)
  * @param bits
  * @return required length of code words in bytes.
  */
-static int QRinput_lengthOfCode(QRencodeMode mode, int version, int bits)
+static int QRinput_lengthOfCode(enum QRencodeMode mode, int version, int bits)
 {
 	int payload, size, chunks, remain, maxsize;
 

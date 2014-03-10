@@ -29,7 +29,7 @@
 #include "mask.h"
 
 static int Mask_writeFormatInformation(int width, unsigned char *frame,
-				       int mask, QRecLevel level)
+				       int mask, enum QRecLevel level)
 {
 	unsigned int format;
 	unsigned char v;
@@ -161,7 +161,7 @@ unsigned char *Mask_makeMaskedFrame(int width, unsigned char *frame, int mask)
 #endif
 
 unsigned char *Mask_makeMask(int width, unsigned char *frame, int mask,
-			     QRecLevel level)
+			     enum QRecLevel level)
 {
 	unsigned char *masked;
 
@@ -289,7 +289,7 @@ static int Mask_evaluateSymbol(int width, unsigned char *frame)
 	return demerit;
 }
 
-unsigned char *Mask_mask(int width, unsigned char *frame, QRecLevel level)
+unsigned char *Mask_mask(int width, unsigned char *frame, enum QRecLevel level)
 {
 	int i;
 	unsigned char *mask, *bestMask;
