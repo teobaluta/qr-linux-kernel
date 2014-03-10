@@ -197,7 +197,7 @@ static void QRraw_free(struct QRRawCode *raw)
  * Raw code for Micro QR Code
  *****************************************************************************/
 
-typedef struct {
+struct MQRRawCode {
 	int version;
 	int dataLength;
 	int eccLength;
@@ -206,15 +206,15 @@ typedef struct {
 	struct RSblock *rsblock;
 	int oddbits;
 	int count;
-} MQRRawCode;
+};
 
-static void MQRraw_free(MQRRawCode *raw);
-static MQRRawCode *MQRraw_new(struct QRinput *input)
+static void MQRraw_free(struct MQRRawCode *raw);
+static struct MQRRawCode *MQRraw_new(struct QRinput *input)
 {
-	MQRRawCode *raw;
+	struct MQRRawCode *raw;
 	RS *rs;
 
-	raw = kmalloc(sizeof(MQRRawCode), GFP_ATOMIC);
+	raw = kmalloc(sizeof(struct MQRRawCode), GFP_ATOMIC);
 	if (raw == NULL)
 		return NULL;
 
@@ -263,7 +263,7 @@ static MQRRawCode *MQRraw_new(struct QRinput *input)
  * @param raw raw code.
  * @return code
  */
-static unsigned char MQRraw_getCode(MQRRawCode *raw)
+static unsigned char MQRraw_getCode(struct MQRRawCode *raw)
 {
 	unsigned char ret;
 
@@ -278,7 +278,7 @@ static unsigned char MQRraw_getCode(MQRRawCode *raw)
 	return ret;
 }
 
-static void MQRraw_free(MQRRawCode *raw)
+static void MQRraw_free(struct MQRRawCode *raw)
 {
 	if (raw != NULL) {
 		kfree(raw->datacode);
@@ -559,7 +559,7 @@ EXIT:
 static struct QRcode *QRcode_encodeMaskMQR(struct QRinput *input, int mask)
 {
 	int width, version;
-	MQRRawCode *raw;
+	struct MQRRawCode *raw;
 	unsigned char *frame, *masked, *p, code, bit;
 	FrameFiller *filler;
 	int i, j;
