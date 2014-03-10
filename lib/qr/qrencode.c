@@ -853,7 +853,7 @@ QRcode_List *QRcode_encodeInputStructured(QRinput_Struct * s)
 	QRcode_List *head = NULL;
 	QRcode_List *tail = NULL;
 	QRcode_List *entry;
-	QRinput_InputList *list = s->head;
+	struct QRinput_InputList *list = s->head;
 
 	while (list != NULL) {
 		if (head == NULL) {

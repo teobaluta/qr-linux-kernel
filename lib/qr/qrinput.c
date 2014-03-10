@@ -1565,11 +1565,11 @@ unsigned char *QRinput_getByteStream(QRinput * input)
  * Structured input data
  *****************************************************************************/
 
-static QRinput_InputList *QRinput_InputList_newEntry(QRinput * input)
+static struct QRinput_InputList *QRinput_InputList_newEntry(QRinput * input)
 {
-	QRinput_InputList *entry;
+	struct QRinput_InputList *entry;
 
-	entry = kmalloc(sizeof(QRinput_InputList), GFP_ATOMIC);
+	entry = kmalloc(sizeof(struct QRinput_InputList), GFP_ATOMIC);
 	if (entry == NULL)
 		return NULL;
 
@@ -1579,7 +1579,7 @@ static QRinput_InputList *QRinput_InputList_newEntry(QRinput * input)
 	return entry;
 }
 
-static void QRinput_InputList_freeEntry(QRinput_InputList * entry)
+static void QRinput_InputList_freeEntry(struct QRinput_InputList * entry)
 {
 	if (entry != NULL) {
 		QRinput_free(entry->input);
@@ -1610,7 +1610,7 @@ void QRinput_Struct_setParity(QRinput_Struct * s, unsigned char parity)
 
 int QRinput_Struct_appendInput(QRinput_Struct * s, QRinput * input)
 {
-	QRinput_InputList *e;
+	struct QRinput_InputList *e;
 
 	if (input->mqr) {
 		//errno = EINVAL;
@@ -1635,7 +1635,7 @@ int QRinput_Struct_appendInput(QRinput_Struct * s, QRinput * input)
 
 void QRinput_Struct_free(QRinput_Struct * s)
 {
-	QRinput_InputList *list, *next;
+	struct QRinput_InputList *list, *next;
 
 	if (s != NULL) {
 		list = s->head;
@@ -1650,7 +1650,7 @@ void QRinput_Struct_free(QRinput_Struct * s)
 
 static unsigned char QRinput_Struct_calcParity(QRinput_Struct * s)
 {
-	QRinput_InputList *list;
+	struct QRinput_InputList *list;
 	unsigned char parity = 0;
 
 	list = s->head;
@@ -1818,7 +1818,7 @@ ABORT:
 int QRinput_Struct_insertStructuredAppendHeaders(QRinput_Struct * s)
 {
 	int num, i;
-	QRinput_InputList *list;
+	struct QRinput_InputList *list;
 
 	if (s->parity < 0) {
 		QRinput_Struct_calcParity(s);
