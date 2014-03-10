@@ -2,29 +2,27 @@
  * qrencode - QR Code encoder
  *
  * Copyright (C) 2006-2012 Kentaro Fukuchi <kentaro@fukuchi.org>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * This library is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
-
 /** \mainpage
  * Libqrencode is a library for encoding data in a QR Code symbol, a kind of 2D
  * symbology.
  *
  * \section encoding Encoding
- * 
- * There are two methods to encode data: <b>encoding a string/data</b> or 
+ *
+ * There are two methods to encode data: <b>encoding a string/data</b> or
  * <b>encoding a structured data</b>.
  *
  * \subsection encoding-string Encoding a string/data
@@ -68,7 +66,7 @@
  * to generate structured-appended symbols. This functions returns an instance
  * of ::QRcode_List. The returned list is a singly-linked list of QRcode: you
  * can retrieve each QR code in this way:
- *  
+ *
  * \code
  * QRcode_List *qrcodes;
  * QRcode_List *entry;
@@ -106,27 +104,27 @@ extern "C" {
 /**
  * Encoding mode.
  */
-typedef enum {
-	QR_MODE_NUL = -1,  ///< Terminator (NUL character). Internal use only
-	QR_MODE_NUM = 0,   ///< Numeric mode
-	QR_MODE_AN,        ///< Alphabet-numeric mode
-	QR_MODE_8,         ///< 8-bit data mode
-	QR_MODE_KANJI,     ///< Kanji (shift-jis) mode
-	QR_MODE_STRUCTURE, ///< Internal use only
-	QR_MODE_ECI,       ///< ECI mode
-	QR_MODE_FNC1FIRST,  ///< FNC1, first position
-	QR_MODE_FNC1SECOND, ///< FNC1, second position
-} QRencodeMode;
+enum QRencodeMode {
+	QR_MODE_NUL = -1,   /* Terminator (NUL character). Internal use only */
+	QR_MODE_NUM = 0,    /* Numeric mode */
+	QR_MODE_AN,         /* Alphabet-numeric mode */
+	QR_MODE_8,          /* 8-bit data mode */
+	QR_MODE_KANJI,      /* Kanji (shift-jis) mode */
+	QR_MODE_STRUCTURE,  /* Internal use only */
+	QR_MODE_ECI,        /* ECI mode */
+	QR_MODE_FNC1FIRST,  /* FNC1, first position */
+	QR_MODE_FNC1SECOND, /* FNC1, second position */
+};
 
 /**
  * Level of error correction.
  */
-typedef enum {
-	QR_ECLEVEL_L = 0, ///< lowest
+enum QRecLevel {
+	QR_ECLEVEL_L = 0, /* lowest */
 	QR_ECLEVEL_M,
 	QR_ECLEVEL_Q,
-	QR_ECLEVEL_H      ///< highest
-} QRecLevel;
+	QR_ECLEVEL_H      /* highest */
+};
 
 /**
  * Maximum version (size) of QR-code symbol.
@@ -188,7 +186,8 @@ extern struct QRinput *QRinput_newMQR(int version, QRecLevel level);
  * @throw EINVAL input data is invalid.
  *
  */
-extern int QRinput_append(struct QRinput *input, QRencodeMode mode, int size, const unsigned char *data);
+extern int QRinput_append(struct QRinput *input, enum QRencodeMode mode,
+			  int size, const unsigned char *data);
 
 /**
  * Append ECI header.
@@ -235,7 +234,8 @@ extern QRecLevel QRinput_getErrorCorrectionLevel(struct QRinput *input);
  * @retval 0 success.
  * @retval -1 invalid argument.
  */
-extern int QRinput_setErrorCorrectionLevel(struct QRinput *input, QRecLevel level);
+extern int QRinput_setErrorCorrectionLevel(struct QRinput *input,
+					   enum QRecLevel level);
 
 /**
  * Set version and error correction level of the QR code at once.
@@ -246,7 +246,9 @@ extern int QRinput_setErrorCorrectionLevel(struct QRinput *input, QRecLevel leve
  * @retval 0 success.
  * @retval -1 invalid argument.
  */
-extern int QRinput_setVersionAndErrorCorrectionLevel(struct QRinput *input, int version, QRecLevel level);
+extern int
+QRinput_setVersionAndErrorCorrectionLevel(struct QRinput *input, int version,
+					  enum QRecLevel level);
 
 /**
  * Free the input object.
@@ -263,8 +265,8 @@ extern void QRinput_free(struct QRinput *input);
  * @retval 0 success.
  * @retval -1 invalid arguments.
  */
-extern int QRinput_check(QRencodeMode mode, int size, const unsigned char *data);
-
+extern int QRinput_check(enum QRencodeMode mode, int size,
+			 const unsigned char *data);
 
 /**
  * Instantiate a set of input data object.
@@ -279,7 +281,8 @@ extern struct QRinput_Struct *QRinput_Struct_new(void);
  * @param s structured input object.
  * @param parity parity of s.
  */
-extern void QRinput_Struct_setParity(struct QRinput_Struct *s, unsigned char parity);
+extern void QRinput_Struct_setParity(struct QRinput_Struct *s,
+				     unsigned char parity);
 
 /**
  * Append a QRinput object to the set. QRinput created by QRinput_newMQR()
@@ -292,7 +295,8 @@ extern void QRinput_Struct_setParity(struct QRinput_Struct *s, unsigned char par
  * @throw ENOMEM unable to allocate memory.
  * @throw EINVAL invalid arguments.
  */
-extern int QRinput_Struct_appendInput(struct QRinput_Struct *s, struct QRinput *input);
+extern int QRinput_Struct_appendInput(struct QRinput_Struct *s,
+				      struct QRinput *input);
 
 /**
  * Free all of QRinput in the set.
@@ -312,7 +316,8 @@ extern void QRinput_Struct_free(struct QRinput_Struct *s);
  * @throw EINVAL invalid input data.
  * @throw ENOMEM unable to allocate memory.
  */
-extern struct QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput *input);
+extern struct QRinput_Struct
+*QRinput_splitQRinputToStruct(struct QRinput *input);
 
 /**
  * Insert structured-append headers to the input structure. It calculates
@@ -324,7 +329,8 @@ extern struct QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput *input
  * @throw EINVAL invalid input object.
  * @throw ENOMEM unable to allocate memory.
  */
-extern int QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct *s);
+extern int
+QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct *s);
 
 /**
  * Set FNC1-1st position flag.
@@ -360,9 +366,9 @@ extern int QRinput_setFNC1Second(struct QRinput *input, unsigned char appid);
  * </pre>
  */
 struct QRcode {
-	int version;         ///< version of the symbol
-	int width;           ///< width of the symbol
-	unsigned char *data; ///< symbol data
+	int version;         /* version of the symbol */
+	int width;           /* width of the symbol */
+	unsigned char *data; /* symbol data */
 };
 
 /**
@@ -410,25 +416,34 @@ extern struct QRcode *QRcode_encodeInput(struct QRinput *input);
  * @throw ENOMEM unable to allocate memory for input objects.
  * @throw ERANGE input data is too large.
  */
-extern struct QRcode *QRcode_encodeString(const char *string, int version, QRecLevel level, QRencodeMode hint, int casesensitive);
+extern struct QRcode
+*QRcode_encodeString(const char *string, int version,
+		     enum QRecLevel level, enum QRencodeMode hint,
+		     int casesensitive);
 
 /**
  * Same to QRcode_encodeString(), but encode whole data in 8-bit mode.
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  */
-extern struct QRcode *QRcode_encodeString8bit(const char *string, int version, QRecLevel level);
+extern struct QRcode
+*QRcode_encodeString8bit(const char *string, int version,
+			 enum QRecLevel level);
 
 /**
  * Micro QR Code version of QRcode_encodeString().
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  */
-extern struct QRcode *QRcode_encodeStringMQR(const char *string, int version, QRecLevel level, QRencodeMode hint, int casesensitive);
+extern struct QRcode
+*QRcode_encodeStringMQR(const char *string, int version, enum QRecLevel level,
+			enum QRencodeMode hint, int casesensitive);
 
 /**
  * Micro QR Code version of QRcode_encodeString8bit().
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  */
-extern struct QRcode *QRcode_encodeString8bitMQR(const char *string, int version, QRecLevel level);
+extern struct QRcode
+*QRcode_encodeString8bitMQR(const char *string, int version,
+			    enum QRecLevel level);
 
 /**
  * Encode byte stream (may include '\0') in 8-bit mode.
@@ -442,13 +457,17 @@ extern struct QRcode *QRcode_encodeString8bitMQR(const char *string, int version
  * @throw ENOMEM unable to allocate memory for input objects.
  * @throw ERANGE input data is too large.
  */
-extern struct QRcode *QRcode_encodeData(int size, const unsigned char *data, int version, QRecLevel level);
+extern struct QRcode
+*QRcode_encodeData(int size, const unsigned char *data,
+		   int version, enum QRecLevel level);
 
 /**
  * Micro QR Code version of QRcode_encodeData().
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  */
-extern struct QRcode *QRcode_encodeDataMQR(int size, const unsigned char *data, int version, QRecLevel level);
+extern struct QRcode
+*QRcode_encodeDataMQR(int size, const unsigned char *data,
+		      int version, enum QRecLevel level);
 
 /**
  * Free the instance of QRcode class.
@@ -462,7 +481,8 @@ extern void QRcode_free(struct QRcode *qrcode);
  * @param s
  * @return a singly-linked list of QRcode.
  */
-extern struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s);
+extern struct QRcode_List
+*QRcode_encodeInputStructured(struct QRinput_Struct *s);
 
 /**
  * Create structured symbols from the string. The library automatically parses
@@ -483,13 +503,18 @@ extern struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s
  * @throw EINVAL invalid input object.
  * @throw ENOMEM unable to allocate memory for input objects.
  */
-extern struct QRcode_List *QRcode_encodeStringStructured(const char *string, int version, QRecLevel level, QRencodeMode hint, int casesensitive);
+extern struct QRcode_List
+*QRcode_encodeStringStructured(const char *string, int version,
+			       enum QRecLevel level, enum QRencodeMode hint,
+			       int casesensitive);
 
 /**
  * Same to QRcode_encodeStringStructured(), but encode whole data in 8-bit mode.
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  */
-extern struct QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version, QRecLevel level);
+extern struct QRcode_List
+*QRcode_encodeString8bitStructured(const char *string, int version,
+				   enum QRecLevel level);
 
 /**
  * Create structured symbols from byte stream (may include '\0'). Wholde data
@@ -504,7 +529,9 @@ extern struct QRcode_List *QRcode_encodeString8bitStructured(const char *string,
  * @throw EINVAL invalid input object.
  * @throw ENOMEM unable to allocate memory for input objects.
  */
-extern struct QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data, int version, QRecLevel level);
+extern struct QRcode_List
+*QRcode_encodeDataStructured(int size, const unsigned char *data,
+			     int version, enum QRecLevel level);
 
 /**
  * Return the number of symbols included in a QRcode_List.
@@ -518,36 +545,5 @@ extern int QRcode_List_size(struct QRcode_List *qrlist);
  * @param qrlist a head entry of a QRcode_List.
  */
 extern void QRcode_List_free(struct QRcode_List *qrlist);
-
-
-/******************************************************************************
- * System utilities
- *****************************************************************************/
-
-/**
- * Return a string that identifies the library version.
- * @param major_version
- * @param minor_version
- * @param micro_version
- */
-extern void QRcode_APIVersion(int *major_version, int *minor_version, int *micro_version);
-
-/**
- * Return a string that identifies the library version.
- * @return a string identifies the library version. The string is held by the
- * library. Do NOT free it.
- */
-extern char *QRcode_APIVersionString(void);
-
-/**
- * Clear all caches. This is only for debug purpose. If you are attacking a
- * complicated memory leak bug, try this to reduce the reachable blocks record.
- * @warning This function is THREAD UNSAFE when pthread is disabled.
- */
-extern void QRcode_clearCache(void);
-
-#if defined(__cplusplus)
-}
-#endif
 
 #endif /* __QRENCODE_H__ */
