@@ -43,7 +43,7 @@ struct RSblock {
 	unsigned char *ecc;
 };
 
-typedef struct {
+struct QRRawCode {
 	int version;
 	int dataLength;
 	int eccLength;
@@ -53,7 +53,7 @@ typedef struct {
 	int blocks;
 	struct RSblock *rsblock;
 	int count;
-} QRRawCode;
+};
 
 static void RSblock_initBlock(struct RSblock *block, int dl, unsigned char *data,
 			      int el, unsigned char *ecc, RS *rs)
@@ -109,13 +109,13 @@ static int RSblock_init(struct RSblock *blocks, int spec[5], unsigned char *data
 	return 0;
 }
 
-static void QRraw_free(QRRawCode *raw);
-static QRRawCode *QRraw_new(struct QRinput *input)
+static void QRraw_free(struct QRRawCode *raw);
+static struct QRRawCode *QRraw_new(struct QRinput *input)
 {
-	QRRawCode *raw;
+	struct QRRawCode *raw;
 	int spec[5], ret;
 
-	raw = kmalloc(sizeof(QRRawCode), GFP_ATOMIC);
+	raw = kmalloc(sizeof(struct QRRawCode), GFP_ATOMIC);
 	if (raw == NULL)
 		return NULL;
 
@@ -161,7 +161,7 @@ static QRRawCode *QRraw_new(struct QRinput *input)
  * @param raw raw code.
  * @return code
  */
-static unsigned char QRraw_getCode(QRRawCode *raw)
+static unsigned char QRraw_getCode(struct QRRawCode *raw)
 {
 	int col, row;
 	unsigned char ret;
@@ -183,7 +183,7 @@ static unsigned char QRraw_getCode(QRRawCode *raw)
 	return ret;
 }
 
-static void QRraw_free(QRRawCode *raw)
+static void QRraw_free(struct QRRawCode *raw)
 {
 	if (raw != NULL) {
 		kfree(raw->datacode);
@@ -473,7 +473,7 @@ EXPORT_SYMBOL_GPL(QRcode_free);
 static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 {
 	int width, version;
-	QRRawCode *raw;
+	struct QRRawCode *raw;
 	unsigned char *frame, *masked, *p, code, bit;
 	FrameFiller *filler;
 	int i, j;
