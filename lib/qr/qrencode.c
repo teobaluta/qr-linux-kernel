@@ -292,20 +292,21 @@ static void MQRraw_free(struct MQRRawCode *raw)
  * Frame filling
  *****************************************************************************/
 
-typedef struct {
+struct FrameFiller {
 	int width;
 	unsigned char *frame;
 	int x, y;
 	int dir;
 	int bit;
 	int mqr;
-} FrameFiller;
+};
 
-static FrameFiller *FrameFiller_new(int width, unsigned char *frame, int mqr)
+static struct FrameFiller *FrameFiller_new(int width, unsigned char *frame,
+					   int mqr)
 {
-	FrameFiller *filler;
+	struct FrameFiller *filler;
 
-	filler = kmalloc(sizeof(FrameFiller), GFP_ATOMIC);
+	filler = kmalloc(sizeof(struct FrameFiller), GFP_ATOMIC);
 	if (filler == NULL)
 		return NULL;
 	filler->width = width;
@@ -319,7 +320,7 @@ static FrameFiller *FrameFiller_new(int width, unsigned char *frame, int mqr)
 	return filler;
 }
 
-static unsigned char *FrameFiller_next(FrameFiller *filler)
+static unsigned char *FrameFiller_next(struct FrameFiller *filler)
 {
 	unsigned char *p;
 	int x, y, w;
@@ -382,7 +383,7 @@ extern unsigned char *FrameFiller_test(int version)
 {
 	int width;
 	unsigned char *frame, *p;
-	FrameFiller *filler;
+	struct FrameFiller *filler;
 	int i, length;
 
 	width = QRspec_getWidth(version);
@@ -414,7 +415,7 @@ extern unsigned char *FrameFiller_testMQR(int version)
 {
 	int width;
 	unsigned char *frame, *p;
-	FrameFiller *filler;
+	struct FrameFiller *filler;
 	int i, length;
 
 	width = MQRspec_getWidth(version);
@@ -475,7 +476,7 @@ static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 	int width, version;
 	struct QRRawCode *raw;
 	unsigned char *frame, *masked, *p, code, bit;
-	FrameFiller *filler;
+	struct FrameFiller *filler;
 	int i, j;
 	struct QRcode *qrcode = NULL;
 
@@ -561,7 +562,7 @@ static struct QRcode *QRcode_encodeMaskMQR(struct QRinput *input, int mask)
 	int width, version;
 	struct MQRRawCode *raw;
 	unsigned char *frame, *masked, *p, code, bit;
-	FrameFiller *filler;
+	struct FrameFiller *filler;
 	int i, j;
 	struct QRcode *qrcode = NULL;
 
