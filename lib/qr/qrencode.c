@@ -576,8 +576,8 @@ struct QRcode *QRcode_encodeInput(struct QRinput *input)
 EXPORT_SYMBOL_GPL(QRcode_encodeInput);
 
 static struct QRcode *QRcode_encodeStringReal(const char *string, int version,
-				       QRecLevel level, int mqr,
-				       QRencodeMode hint, int casesensitive)
+				       enum QRecLevel level, int mqr,
+				       enum QRencodeMode hint, int casesensitive)
 {
 	struct QRinput *input;
 	struct QRcode *code;
@@ -610,7 +610,7 @@ static struct QRcode *QRcode_encodeStringReal(const char *string, int version,
 }
 
 struct QRcode *QRcode_encodeString(const char *string, int version,
-				   QRecLevel level, QRencodeMode hint,
+				   enum QRecLevel level, enum QRencodeMode hint,
 				   int casesensitive)
 {
 	return QRcode_encodeStringReal(string, version, level, 0, hint,
@@ -619,7 +619,7 @@ struct QRcode *QRcode_encodeString(const char *string, int version,
 EXPORT_SYMBOL_GPL(QRcode_encodeString);
 
 struct QRcode *QRcode_encodeStringMQR(const char *string, int version,
-				      QRecLevel level, QRencodeMode hint,
+				      enum QRecLevel level, enum QRencodeMode hint,
 				      int casesensitive)
 {
 	return QRcode_encodeStringReal(string, version, level, 1, hint,
@@ -629,7 +629,7 @@ EXPORT_SYMBOL_GPL(QRcode_encodeStringMQR);
 
 static struct QRcode *QRcode_encodeDataReal(const unsigned char *data,
 					    int length, int version,
-					    QRecLevel level, int mqr)
+					    enum QRecLevel level, int mqr)
 {
 	struct QRinput *input;
 	struct QRcode *code;
@@ -658,14 +658,14 @@ static struct QRcode *QRcode_encodeDataReal(const unsigned char *data,
 }
 
 struct QRcode *QRcode_encodeData(int size, const unsigned char *data,
-				 int version, QRecLevel level)
+				 int version, enum QRecLevel level)
 {
 	return QRcode_encodeDataReal(data, size, version, level, 0);
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeData);
 
 struct QRcode *QRcode_encodeString8bit(const char *string, int version,
-				QRecLevel level)
+				enum QRecLevel level)
 {
 	if (string == NULL)
 		return NULL;
@@ -676,14 +676,14 @@ struct QRcode *QRcode_encodeString8bit(const char *string, int version,
 EXPORT_SYMBOL_GPL(QRcode_encodeString8bit);
 
 struct QRcode *QRcode_encodeDataMQR(int size, const unsigned char *data,
-				    int version, QRecLevel level)
+				    int version, enum QRecLevel level)
 {
 	return QRcode_encodeDataReal(data, size, version, level, 1);
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeDataMQR);
 
 struct QRcode *QRcode_encodeString8bitMQR(const char *string, int version,
-				   QRecLevel level)
+				   enum QRecLevel level)
 {
 	if (string == NULL)
 		return NULL;
@@ -797,9 +797,9 @@ static struct QRcode_List *QRcode_encodeInputToStructured(struct QRinput *input)
 static struct QRcode_List *QRcode_encodeDataStructuredReal(int size,
 						    const unsigned char *data,
 						    int version,
-						    QRecLevel level,
+						    enum QRecLevel level,
 						    int eightbit,
-						    QRencodeMode hint,
+						    enum QRencodeMode hint,
 						    int casesensitive)
 {
 	struct QRinput *input;
@@ -835,7 +835,7 @@ static struct QRcode_List *QRcode_encodeDataStructuredReal(int size,
 
 struct QRcode_List *QRcode_encodeDataStructured(int size,
 						const unsigned char *data,
-						int version, QRecLevel level)
+						int version, enum QRecLevel level)
 {
 	return QRcode_encodeDataStructuredReal(size, data, version, level, 1,
 					       QR_MODE_NUL, 0);
@@ -844,7 +844,7 @@ EXPORT_SYMBOL_GPL(QRcode_encodeDataStructured);
 
 struct QRcode_List *QRcode_encodeString8bitStructured(const char *string,
 						      int version,
-						      QRecLevel level)
+						      enum QRecLevel level)
 {
 	if (string == NULL)
 		return NULL;
@@ -857,7 +857,7 @@ EXPORT_SYMBOL_GPL(QRcode_encodeString8bitStructured);
 
 struct QRcode_List
 *QRcode_encodeStringStructured(const char *string, int version,
-			       QRecLevel level, QRencodeMode hint,
+			       enum QRecLevel level, enum QRencodeMode hint,
 			       int casesensitive)
 {
 	if (string == NULL)

@@ -39,7 +39,7 @@
  * @param level
  * @return maximum size (bytes)
  */
-extern int QRspec_getDataLength(int version, QRecLevel level);
+extern int QRspec_getDataLength(int version, enum QRecLevel level);
 
 /**
  * Return maximum error correction code length (bytes) for the version.
@@ -47,7 +47,7 @@ extern int QRspec_getDataLength(int version, QRecLevel level);
  * @param level
  * @return ECC size (bytes)
  */
-extern int QRspec_getECCLength(int version, QRecLevel level);
+extern int QRspec_getECCLength(int version, enum QRecLevel level);
 
 /**
  * Return a version number that satisfies the input code length.
@@ -55,7 +55,7 @@ extern int QRspec_getECCLength(int version, QRecLevel level);
  * @param level
  * @return version number
  */
-extern int QRspec_getMinimumVersion(int size, QRecLevel level);
+extern int QRspec_getMinimumVersion(int size, enum QRecLevel level);
 
 /**
  * Return the width of the symbol for the version.
@@ -81,7 +81,7 @@ extern int QRspec_getRemainder(int version);
  * @param version
  * @return the size of the appropriate length indicator (bits).
  */
-extern int QRspec_lengthIndicator(QRencodeMode mode, int version);
+extern int QRspec_lengthIndicator(enum QRencodeMode mode, int version);
 
 /**
  * Return the maximum length for the mode and version.
@@ -89,7 +89,7 @@ extern int QRspec_lengthIndicator(QRencodeMode mode, int version);
  * @param version
  * @return the maximum length (bytes)
  */
-extern int QRspec_maximumWords(QRencodeMode mode, int version);
+extern int QRspec_maximumWords(enum QRencodeMode mode, int version);
 
 /******************************************************************************
  * Error correction code
@@ -103,7 +103,7 @@ extern int QRspec_maximumWords(QRencodeMode mode, int version);
  * {# of type1 blocks, # of data code, # of ecc code,
  *  # of type2 blocks, # of data code}
  */
-void QRspec_getEccSpec(int version, QRecLevel level, int spec[5]);
+void QRspec_getEccSpec(int version, enum QRecLevel level, int spec[5]);
 
 #define QRspec_rsBlockNum(__spec__) (__spec__[0] + __spec__[3])
 #define QRspec_rsBlockNum1(__spec__) (__spec__[0])
@@ -141,7 +141,7 @@ extern unsigned int QRspec_getVersionPattern(int version);
  * @param level
  * @return BCH encoded format information pattern
  */
-extern unsigned int QRspec_getFormatInfo(int mask, QRecLevel level);
+extern unsigned int QRspec_getFormatInfo(int mask, enum QRecLevel level);
 
 /******************************************************************************
  * Frame

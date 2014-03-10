@@ -25,13 +25,13 @@
 #include <linux/qrencode.h>
 #include "bitstream.h"
 
-int QRinput_isSplittableMode(QRencodeMode mode);
+int QRinput_isSplittableMode(enum QRencodeMode mode);
 
 /******************************************************************************
  * Entry of input data
  *****************************************************************************/
 struct QRinput_List {
-	QRencodeMode mode;
+	enum QRencodeMode mode;
 	int size;				///< Size of data chunk (byte).
 	unsigned char *data;	///< Data chunk.
 	struct BitStream *bstream;
@@ -50,7 +50,7 @@ struct QRinput_List {
  */
 struct QRinput {
 	int version;
-	QRecLevel level;
+	enum QRecLevel level;
 	struct QRinput_List *head;
 	struct QRinput_List *tail;
 	int mqr;
@@ -123,7 +123,7 @@ extern struct BitStream *QRinput_mergeBitStream(struct QRinput *input);
 extern struct BitStream *QRinput_getBitStream(struct QRinput *input);
 extern int QRinput_estimateBitStreamSize(struct QRinput *input, int version);
 extern int QRinput_splitEntry(struct QRinput_List *entry, int bytes);
-extern int QRinput_lengthOfCode(QRencodeMode mode, int version, int bits);
+extern int QRinput_lengthOfCode(enum QRencodeMode mode, int version, int bits);
 extern int QRinput_insertStructuredAppendHeader(struct QRinput *input, int size, int index, unsigned char parity);
 #endif
 
