@@ -42,7 +42,7 @@ int QRinput_isSplittableMode(QRencodeMode mode)
  *****************************************************************************/
 
 static struct QRinput_List *QRinput_List_newEntry(QRencodeMode mode, int size,
-					   const unsigned char *data)
+						  const unsigned char *data)
 {
 	struct QRinput_List *entry;
 
@@ -71,7 +71,7 @@ static struct QRinput_List *QRinput_List_newEntry(QRencodeMode mode, int size,
 	return entry;
 }
 
-static void QRinput_List_freeEntry(struct QRinput_List * entry)
+static void QRinput_List_freeEntry(struct QRinput_List *entry)
 {
 	if (entry != NULL) {
 		kfree(entry->data);
@@ -80,7 +80,7 @@ static void QRinput_List_freeEntry(struct QRinput_List * entry)
 	}
 }
 
-static struct QRinput_List *QRinput_List_dup(struct QRinput_List * entry)
+static struct QRinput_List *QRinput_List_dup(struct QRinput_List *entry)
 {
 	struct QRinput_List *n;
 
@@ -154,12 +154,12 @@ INVALID:
 	return NULL;
 }
 
-int QRinput_getVersion(struct QRinput * input)
+int QRinput_getVersion(struct QRinput *input)
 {
 	return input->version;
 }
 
-int QRinput_setVersion(struct QRinput * input, int version)
+int QRinput_setVersion(struct QRinput *input, int version)
 {
 	if (input->mqr || version < 0 || version > QRSPEC_VERSION_MAX) {
 		//      errno = EINVAL;
@@ -175,7 +175,7 @@ QRecLevel QRinput_getErrorCorrectionLevel(struct QRinput * input)
 	return input->level;
 }
 
-int QRinput_setErrorCorrectionLevel(struct QRinput * input, QRecLevel level)
+int QRinput_setErrorCorrectionLevel(struct QRinput *input, QRecLevel level)
 {
 	if (input->mqr || level > QR_ECLEVEL_H) {
 		//errno = EINVAL;
@@ -187,8 +187,8 @@ int QRinput_setErrorCorrectionLevel(struct QRinput * input, QRecLevel level)
 	return 0;
 }
 
-int QRinput_setVersionAndErrorCorrectionLevel(struct QRinput * input, int version,
-					      QRecLevel level)
+int QRinput_setVersionAndErrorCorrectionLevel(struct QRinput *input,
+					      int version, QRecLevel level)
 {
 	if (input->mqr) {
 		if (version <= 0 || version > MQRSPEC_VERSION_MAX)
@@ -212,7 +212,8 @@ INVALID:
 	return -1;
 }
 
-static void QRinput_appendEntry(struct QRinput * input, struct QRinput_List * entry)
+static void QRinput_appendEntry(struct QRinput *input,
+				struct QRinput_List *entry)
 {
 	if (input->tail == NULL) {
 		input->head = entry;
@@ -224,7 +225,7 @@ static void QRinput_appendEntry(struct QRinput * input, struct QRinput_List * en
 	entry->next = NULL;
 }
 
-int QRinput_append(struct QRinput * input, QRencodeMode mode, int size,
+int QRinput_append(struct QRinput *input, QRencodeMode mode, int size,
 		   const unsigned char *data)
 {
 	struct QRinput_List *entry;
@@ -250,7 +251,7 @@ int QRinput_append(struct QRinput * input, QRencodeMode mode, int size,
  * @throw EINVAL invalid parameter.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_insertStructuredAppendHeader(struct QRinput * input, int size,
+static int QRinput_insertStructuredAppendHeader(struct QRinput *input, int size,
 						int number,
 						unsigned char parity)
 {
@@ -280,7 +281,7 @@ static int QRinput_insertStructuredAppendHeader(struct QRinput * input, int size
 	return 0;
 }
 
-int QRinput_appendECIheader(struct QRinput * input, unsigned int ecinum)
+int QRinput_appendECIheader(struct QRinput *input, unsigned int ecinum)
 {
 	unsigned char data[4];
 
@@ -298,7 +299,7 @@ int QRinput_appendECIheader(struct QRinput * input, unsigned int ecinum)
 	return QRinput_append(input, QR_MODE_ECI, 4, data);
 }
 
-void QRinput_free(struct QRinput * input)
+void QRinput_free(struct QRinput *input)
 {
 	struct QRinput_List *list, *next;
 
@@ -313,7 +314,7 @@ void QRinput_free(struct QRinput * input)
 	}
 }
 
-static unsigned char QRinput_calcParity(struct QRinput * input)
+static unsigned char QRinput_calcParity(struct QRinput *input)
 {
 	unsigned char parity = 0;
 	struct QRinput_List *list;
@@ -332,7 +333,7 @@ static unsigned char QRinput_calcParity(struct QRinput * input)
 	return parity;
 }
 
-struct QRinput *QRinput_dup(struct QRinput * input)
+struct QRinput *QRinput_dup(struct QRinput *input)
 {
 	struct QRinput *n;
 	struct QRinput_List *list, *e;
@@ -416,7 +417,8 @@ int QRinput_estimateBitsModeNum(int size)
  *            See Execptions for the details.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_encodeModeNum(struct QRinput_List * entry, int version, int mqr)
+static int QRinput_encodeModeNum(struct QRinput_List *entry, int version,
+				 int mqr)
 {
 	int words, i, ret;
 	unsigned int val;
@@ -547,7 +549,8 @@ int QRinput_estimateBitsModeAn(int size)
  * @throw ENOMEM unable to allocate memory.
  * @throw EINVAL invalid version.
  */
-static int QRinput_encodeModeAn(struct QRinput_List * entry, int version, int mqr)
+static int QRinput_encodeModeAn(struct QRinput_List *entry, int version,
+				int mqr)
 {
 	int words, i, ret;
 	unsigned int val;
@@ -636,7 +639,7 @@ int QRinput_estimateBitsMode8(int size)
  *            See Execptions for the details.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_encodeMode8(struct QRinput_List * entry, int version, int mqr)
+static int QRinput_encodeMode8(struct QRinput_List *entry, int version, int mqr)
 {
 	int ret;
 
@@ -734,7 +737,8 @@ static int QRinput_checkModeKanji(int size, const unsigned char *data)
  * @throw ENOMEM unable to allocate memory.
  * @throw EINVAL invalid version.
  */
-static int QRinput_encodeModeKanji(struct QRinput_List * entry, int version, int mqr)
+static int QRinput_encodeModeKanji(struct QRinput_List *entry, int version,
+				   int mqr)
 {
 	int ret, i;
 	unsigned int val, h;
@@ -810,7 +814,7 @@ ABORT:
  * @throw ENOMEM unable to allocate memory.
  * @throw EINVAL invalid entry.
  */
-static int QRinput_encodeModeStructure(struct QRinput_List * entry, int mqr)
+static int QRinput_encodeModeStructure(struct QRinput_List *entry, int mqr)
 {
 	int ret;
 
@@ -854,7 +858,7 @@ static int QRinput_checkModeFNC1Second(int size, const unsigned char *data)
 	return 0;
 }
 
-static int QRinput_encodeModeFNC1Second(struct QRinput_List * entry, int version)
+static int QRinput_encodeModeFNC1Second(struct QRinput_List *entry, int version)
 {
 	int ret;
 
@@ -910,7 +914,7 @@ int QRinput_estimateBitsModeECI(unsigned char *data)
 	}
 }
 
-static int QRinput_encodeModeECI(struct QRinput_List * entry, int version)
+static int QRinput_encodeModeECI(struct QRinput_List *entry, int version)
 {
 	int ret, words;
 	unsigned int ecinum, code;
@@ -992,7 +996,7 @@ int QRinput_check(QRencodeMode mode, int size, const unsigned char *data)
  * @param mqr
  * @return number of bits
  */
-static int QRinput_estimateBitStreamSizeOfEntry(struct QRinput_List * entry,
+static int QRinput_estimateBitStreamSizeOfEntry(struct QRinput_List *entry,
 						int version, int mqr)
 {
 	int bits = 0;
@@ -1049,7 +1053,7 @@ static int QRinput_estimateBitStreamSizeOfEntry(struct QRinput_List * entry,
  * @param version version of the symbol
  * @return number of bits
  */
-static int QRinput_estimateBitStreamSize(struct QRinput * input, int version)
+static int QRinput_estimateBitStreamSize(struct QRinput *input, int version)
 {
 	struct QRinput_List *list;
 	int bits = 0;
@@ -1070,7 +1074,7 @@ static int QRinput_estimateBitStreamSize(struct QRinput * input, int version)
  * @param input input data
  * @return required version number
  */
-static int QRinput_estimateVersion(struct QRinput * input)
+static int QRinput_estimateVersion(struct QRinput *input)
 {
 	int bits;
 	int version, prev;
@@ -1150,7 +1154,8 @@ static int QRinput_lengthOfCode(QRencodeMode mode, int version, int bits)
  * @param entry
  * @return number of bits (>0) or -1 for failure.
  */
-static int QRinput_encodeBitStream(struct QRinput_List * entry, int version, int mqr)
+static int QRinput_encodeBitStream(struct QRinput_List *entry, int version,
+				   int mqr)
 {
 	int words, ret;
 	struct QRinput_List *st1 = NULL, *st2 = NULL;
@@ -1234,7 +1239,7 @@ ABORT:
  *            See Execptions for the details.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_createBitStream(struct QRinput * input)
+static int QRinput_createBitStream(struct QRinput *input)
 {
 	struct QRinput_List *list;
 	int bits, total = 0;
@@ -1263,7 +1268,7 @@ static int QRinput_createBitStream(struct QRinput * input)
  * @throw ENOMEM unable to allocate memory.
  * @throw ERANGE input is too large.
  */
-static int QRinput_convertData(struct QRinput * input)
+static int QRinput_convertData(struct QRinput *input)
 {
 	int bits;
 	int ver;
@@ -1301,7 +1306,8 @@ static int QRinput_convertData(struct QRinput * input)
  * @throw ERANGE input data is too large.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_appendPaddingBit(struct BitStream * bstream, struct QRinput * input)
+static int QRinput_appendPaddingBit(struct BitStream *bstream,
+				    struct QRinput *input)
 {
 	int bits, maxbits, words, maxwords, i, ret;
 	struct BitStream *padding = NULL;
@@ -1368,7 +1374,8 @@ DONE:
  * @throw ERANGE input data is too large.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_appendPaddingBitMQR(struct BitStream * bstream, struct QRinput * input)
+static int QRinput_appendPaddingBitMQR(struct BitStream *bstream,
+				       struct QRinput *input)
 {
 	int bits, maxbits, words, maxwords, i, ret, termbits;
 	struct BitStream *padding = NULL;
@@ -1441,7 +1448,7 @@ DONE:
 	return ret;
 }
 
-static int QRinput_insertFNC1Header(struct QRinput * input)
+static int QRinput_insertFNC1Header(struct QRinput *input)
 {
 	struct QRinput_List *entry = NULL;
 
@@ -1474,7 +1481,7 @@ static int QRinput_insertFNC1Header(struct QRinput * input)
  * @return merged bit stream
  */
 
-static struct BitStream *QRinput_mergeBitStream(struct QRinput * input)
+static struct BitStream *QRinput_mergeBitStream(struct QRinput *input)
 {
 	struct BitStream *bstream;
 	struct QRinput_List *list;
@@ -1518,7 +1525,7 @@ static struct BitStream *QRinput_mergeBitStream(struct QRinput * input)
  * @return padded merged bit stream
  */
 
-static struct BitStream *QRinput_getBitStream(struct QRinput * input)
+static struct BitStream *QRinput_getBitStream(struct QRinput *input)
 {
 	struct BitStream *bstream;
 	int ret;
@@ -1546,7 +1553,7 @@ static struct BitStream *QRinput_getBitStream(struct QRinput * input)
  * @return padded merged byte stream
  */
 
-unsigned char *QRinput_getByteStream(struct QRinput * input)
+unsigned char *QRinput_getByteStream(struct QRinput *input)
 {
 	struct BitStream *bstream;
 	unsigned char *array;
@@ -1565,7 +1572,8 @@ unsigned char *QRinput_getByteStream(struct QRinput * input)
  * Structured input data
  *****************************************************************************/
 
-static struct QRinput_InputList *QRinput_InputList_newEntry(struct QRinput * input)
+static struct QRinput_InputList *QRinput_InputList_newEntry(struct QRinput
+							    *input)
 {
 	struct QRinput_InputList *entry;
 
@@ -1579,7 +1587,7 @@ static struct QRinput_InputList *QRinput_InputList_newEntry(struct QRinput * inp
 	return entry;
 }
 
-static void QRinput_InputList_freeEntry(struct QRinput_InputList * entry)
+static void QRinput_InputList_freeEntry(struct QRinput_InputList *entry)
 {
 	if (entry != NULL) {
 		QRinput_free(entry->input);
@@ -1603,12 +1611,12 @@ struct QRinput_Struct *QRinput_Struct_new(void)
 	return s;
 }
 
-void QRinput_Struct_setParity(struct QRinput_Struct * s, unsigned char parity)
+void QRinput_Struct_setParity(struct QRinput_Struct *s, unsigned char parity)
 {
 	s->parity = (int)parity;
 }
 
-int QRinput_Struct_appendInput(struct QRinput_Struct * s, struct QRinput * input)
+int QRinput_Struct_appendInput(struct QRinput_Struct *s, struct QRinput *input)
 {
 	struct QRinput_InputList *e;
 
@@ -1633,7 +1641,7 @@ int QRinput_Struct_appendInput(struct QRinput_Struct * s, struct QRinput * input
 	return s->size;
 }
 
-void QRinput_Struct_free(struct QRinput_Struct * s)
+void QRinput_Struct_free(struct QRinput_Struct *s)
 {
 	struct QRinput_InputList *list, *next;
 
@@ -1648,7 +1656,7 @@ void QRinput_Struct_free(struct QRinput_Struct * s)
 	}
 }
 
-static unsigned char QRinput_Struct_calcParity(struct QRinput_Struct * s)
+static unsigned char QRinput_Struct_calcParity(struct QRinput_Struct *s)
 {
 	struct QRinput_InputList *list;
 	unsigned char parity = 0;
@@ -1664,7 +1672,7 @@ static unsigned char QRinput_Struct_calcParity(struct QRinput_Struct * s)
 	return parity;
 }
 
-static int QRinput_List_shrinkEntry(struct QRinput_List * entry, int bytes)
+static int QRinput_List_shrinkEntry(struct QRinput_List *entry, int bytes)
 {
 	unsigned char *data;
 
@@ -1680,7 +1688,7 @@ static int QRinput_List_shrinkEntry(struct QRinput_List * entry, int bytes)
 	return 0;
 }
 
-static int QRinput_splitEntry(struct QRinput_List * entry, int bytes)
+static int QRinput_splitEntry(struct QRinput_List *entry, int bytes)
 {
 	struct QRinput_List *e;
 	int ret;
@@ -1703,7 +1711,7 @@ static int QRinput_splitEntry(struct QRinput_List * entry, int bytes)
 	return 0;
 }
 
-struct QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput * input)
+struct QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput *input)
 {
 	struct QRinput *p;
 	struct QRinput_Struct *s;
@@ -1815,7 +1823,7 @@ ABORT:
 	return NULL;
 }
 
-int QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct * s)
+int QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct *s)
 {
 	int num, i;
 	struct QRinput_InputList *list;
@@ -1846,7 +1854,7 @@ int QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct * s)
  * Extended encoding mode (FNC1 and ECI)
  *****************************************************************************/
 
-int QRinput_setFNC1First(struct QRinput * input)
+int QRinput_setFNC1First(struct QRinput *input)
 {
 	if (input->mqr) {
 		//errno = EINVAL;
@@ -1857,7 +1865,7 @@ int QRinput_setFNC1First(struct QRinput * input)
 	return 0;
 }
 
-int QRinput_setFNC1Second(struct QRinput * input, unsigned char appid)
+int QRinput_setFNC1Second(struct QRinput *input, unsigned char appid)
 {
 	if (input->mqr) {
 		//errno = EINVAL;
