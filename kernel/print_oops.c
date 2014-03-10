@@ -100,7 +100,7 @@ void print_qr_err(void)
 	ssize_t compr_len;
 	struct fb_info *info;
 	struct fb_fillrect rect;
-	QRcode *qr;
+	struct QRcode *qr;
 
 	int i, j;
 	int w;
