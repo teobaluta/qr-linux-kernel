@@ -834,20 +834,6 @@ int QRcode_List_size(struct QRcode_List * qrlist)
 }
 EXPORT_SYMBOL_GPL(QRcode_List_size);
 
-#if 0
-static unsigned char QRcode_parity(const char *str, int size)
-{
-	unsigned char parity = 0;
-	int i;
-
-	for (i = 0; i < size; i++) {
-		parity ^= str[i];
-	}
-
-	return parity;
-}
-#endif
-
 struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct * s)
 {
 	struct QRcode_List *head = NULL;
@@ -980,33 +966,3 @@ struct QRcode_List *QRcode_encodeStringStructured(const char *string, int versio
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeStringStructured);
 
-/******************************************************************************
- * System utilities
- *****************************************************************************/
-
-/*
-void QRcode_APIVersion(int *major_version, int *minor_version, int *micro_version)
-{
-	if(major_version != NULL) {
-		*major_version = MAJOR_VERSION;
-	}
-	if(minor_version != NULL) {
-		*minor_version = MINOR_VERSION;
-	}
-	if(micro_version != NULL) {
-		*micro_version = MICRO_VERSION;
-	}
-}
-
-char *QRcode_APIVersionString(void)
-{
-	return VERSION;
-}
-
-void QRcode_clearCache(void)
-{
-	QRspec_clearCache();
-	MQRspec_clearCache();
-	free_rs_cache();
-}
-*/
