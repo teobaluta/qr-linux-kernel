@@ -1301,10 +1301,10 @@ static int QRinput_convertData(QRinput * input)
  * @throw ERANGE input data is too large.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_appendPaddingBit(BitStream * bstream, QRinput * input)
+static int QRinput_appendPaddingBit(struct BitStream * bstream, QRinput * input)
 {
 	int bits, maxbits, words, maxwords, i, ret;
-	BitStream *padding = NULL;
+	struct BitStream *padding = NULL;
 	unsigned char *padbuf;
 	int padlen;
 
@@ -1368,10 +1368,10 @@ DONE:
  * @throw ERANGE input data is too large.
  * @throw ENOMEM unable to allocate memory.
  */
-static int QRinput_appendPaddingBitMQR(BitStream * bstream, QRinput * input)
+static int QRinput_appendPaddingBitMQR(struct BitStream * bstream, QRinput * input)
 {
 	int bits, maxbits, words, maxwords, i, ret, termbits;
-	BitStream *padding = NULL;
+	struct BitStream *padding = NULL;
 	unsigned char *padbuf;
 	int padlen;
 
@@ -1474,9 +1474,9 @@ static int QRinput_insertFNC1Header(QRinput * input)
  * @return merged bit stream
  */
 
-static BitStream *QRinput_mergeBitStream(QRinput * input)
+static struct BitStream *QRinput_mergeBitStream(QRinput * input)
 {
-	BitStream *bstream;
+	struct BitStream *bstream;
 	QRinput_List *list;
 	int ret;
 
@@ -1518,9 +1518,9 @@ static BitStream *QRinput_mergeBitStream(QRinput * input)
  * @return padded merged bit stream
  */
 
-static BitStream *QRinput_getBitStream(QRinput * input)
+static struct BitStream *QRinput_getBitStream(QRinput * input)
 {
-	BitStream *bstream;
+	struct BitStream *bstream;
 	int ret;
 
 	bstream = QRinput_mergeBitStream(input);
@@ -1548,7 +1548,7 @@ static BitStream *QRinput_getBitStream(QRinput * input)
 
 unsigned char *QRinput_getByteStream(QRinput * input)
 {
-	BitStream *bstream;
+	struct BitStream *bstream;
 	unsigned char *array;
 
 	bstream = QRinput_getBitStream(input);
