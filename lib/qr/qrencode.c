@@ -271,7 +271,7 @@ static unsigned char MQRraw_getCode(struct MQRRawCode *raw)
 
 	if (raw->count < raw->dataLength)
 		ret = raw->datacode[raw->count];
-	else if (raw->count < raw->dataLength + raw->eccLength) {
+	else if (raw->count < raw->dataLength + raw->eccLength)
 		ret = raw->ecccode[raw->count - raw->dataLength];
 	else
 		return 0;
