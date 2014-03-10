@@ -273,24 +273,19 @@ extern void QRinput_free(struct QRinput *input);
 extern int QRinput_check(QRencodeMode mode, int size, const unsigned char *data);
 
 /**
- * Set of QRinput for structured symbols.
- */
-typedef struct _QRinput_Struct QRinput_Struct;
-
-/**
  * Instantiate a set of input data object.
  * @return an instance of QRinput_Struct. On error, NULL is returned and errno
  *         is set to indicate the error.
  * @throw ENOMEM unable to allocate memory.
  */
-extern QRinput_Struct *QRinput_Struct_new(void);
+extern struct QRinput_Struct *QRinput_Struct_new(void);
 
 /**
  * Set parity of structured symbols.
  * @param s structured input object.
  * @param parity parity of s.
  */
-extern void QRinput_Struct_setParity(QRinput_Struct *s, unsigned char parity);
+extern void QRinput_Struct_setParity(struct QRinput_Struct *s, unsigned char parity);
 
 /**
  * Append a QRinput object to the set. QRinput created by QRinput_newMQR()
@@ -303,13 +298,13 @@ extern void QRinput_Struct_setParity(QRinput_Struct *s, unsigned char parity);
  * @throw ENOMEM unable to allocate memory.
  * @throw EINVAL invalid arguments.
  */
-extern int QRinput_Struct_appendInput(QRinput_Struct *s, struct QRinput *input);
+extern int QRinput_Struct_appendInput(struct QRinput_Struct *s, struct QRinput *input);
 
 /**
  * Free all of QRinput in the set.
  * @param s a structured input object.
  */
-extern void QRinput_Struct_free(QRinput_Struct *s);
+extern void QRinput_Struct_free(struct QRinput_Struct *s);
 
 /**
  * Split a QRinput to QRinput_Struct. It calculates a parity, set it, then
@@ -323,7 +318,7 @@ extern void QRinput_Struct_free(QRinput_Struct *s);
  * @throw EINVAL invalid input data.
  * @throw ENOMEM unable to allocate memory.
  */
-extern QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput *input);
+extern struct QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput *input);
 
 /**
  * Insert structured-append headers to the input structure. It calculates
@@ -335,7 +330,7 @@ extern QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput *input);
  * @throw EINVAL invalid input object.
  * @throw ENOMEM unable to allocate memory.
  */
-extern int QRinput_Struct_insertStructuredAppendHeaders(QRinput_Struct *s);
+extern int QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct *s);
 
 /**
  * Set FNC1-1st position flag.
@@ -473,7 +468,7 @@ extern void QRcode_free(QRcode *qrcode);
  * @param s
  * @return a singly-linked list of QRcode.
  */
-extern QRcode_List *QRcode_encodeInputStructured(QRinput_Struct *s);
+extern QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s);
 
 /**
  * Create structured symbols from the string. The library automatically parses

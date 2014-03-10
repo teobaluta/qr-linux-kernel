@@ -848,7 +848,7 @@ static unsigned char QRcode_parity(const char *str, int size)
 }
 #endif
 
-QRcode_List *QRcode_encodeInputStructured(QRinput_Struct * s)
+QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct * s)
 {
 	QRcode_List *head = NULL;
 	QRcode_List *tail = NULL;
@@ -885,7 +885,7 @@ EXPORT_SYMBOL_GPL(QRcode_encodeInputStructured);
 
 static QRcode_List *QRcode_encodeInputToStructured(struct QRinput * input)
 {
-	QRinput_Struct *s;
+	struct QRinput_Struct *s;
 	QRcode_List *codes;
 
 	s = QRinput_splitQRinputToStruct(input);
