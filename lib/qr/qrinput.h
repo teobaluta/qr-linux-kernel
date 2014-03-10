@@ -30,14 +30,12 @@ int QRinput_isSplittableMode(QRencodeMode mode);
 /******************************************************************************
  * Entry of input data
  *****************************************************************************/
-typedef struct _QRinput_List QRinput_List;
-
-struct _QRinput_List {
+struct QRinput_List {
 	QRencodeMode mode;
 	int size;				///< Size of data chunk (byte).
 	unsigned char *data;	///< Data chunk.
 	struct BitStream *bstream;
-	QRinput_List *next;
+	struct QRinput_List *next;
 };
 
 /******************************************************************************
@@ -46,8 +44,8 @@ struct _QRinput_List {
 struct _QRinput {
 	int version;
 	QRecLevel level;
-	QRinput_List *head;
-	QRinput_List *tail;
+	struct QRinput_List *head;
+	struct QRinput_List *tail;
 	int mqr;
 	int fnc1;
 	unsigned char appid;
@@ -115,7 +113,7 @@ extern const signed char QRinput_anTable[128];
 extern struct BitStream *QRinput_mergeBitStream(QRinput *input);
 extern struct BitStream *QRinput_getBitStream(QRinput *input);
 extern int QRinput_estimateBitStreamSize(QRinput *input, int version);
-extern int QRinput_splitEntry(QRinput_List *entry, int bytes);
+extern int QRinput_splitEntry(struct QRinput_List *entry, int bytes);
 extern int QRinput_lengthOfCode(QRencodeMode mode, int version, int bits);
 extern int QRinput_insertStructuredAppendHeader(QRinput *input, int size, int index, unsigned char parity);
 #endif
