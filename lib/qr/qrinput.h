@@ -63,7 +63,7 @@ struct QRinput {
  *****************************************************************************/
 
 struct QRinput_InputList {
-	QRinput *input;
+	struct QRinput *input;
 	struct QRinput_InputList *next;
 };
 

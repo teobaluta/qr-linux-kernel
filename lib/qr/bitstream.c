@@ -120,7 +120,7 @@ static struct BitStream *BitStream_newFromBytes(int size, unsigned char *data)
 	return bstream;
 }
 
-int BitStream_append(struct BitStream *bstream, BitStream *arg)
+int BitStream_append(struct BitStream *bstream, struct BitStream *arg)
 {
 	unsigned char *data;
 
