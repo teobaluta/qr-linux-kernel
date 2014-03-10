@@ -700,7 +700,7 @@ struct QRcode *QRcode_encodeString(const char *string, int version,
 EXPORT_SYMBOL_GPL(QRcode_encodeString);
 
 struct QRcode *QRcode_encodeStringMQR(const char *string, int version,
-				      QRecLevel level,QRencodeMode hint,
+				      QRecLevel level, QRencodeMode hint,
 				      int casesensitive)
 {
 	return QRcode_encodeStringReal(string, version, level, 1, hint,
