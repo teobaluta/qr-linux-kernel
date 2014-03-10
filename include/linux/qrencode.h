@@ -369,10 +369,10 @@ typedef struct {
  * Singly-linked list of QRcode. Used to represent a structured symbols.
  * A list is terminated with NULL.
  */
-typedef struct _QRcode_List {
+struct QRcode_List {
 	QRcode *code;
-	struct _QRcode_List *next;
-} QRcode_List;
+	struct QRcode_List *next;
+};
 
 /**
  * Create a symbol from the input data.
@@ -462,7 +462,7 @@ extern void QRcode_free(QRcode *qrcode);
  * @param s
  * @return a singly-linked list of QRcode.
  */
-extern QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s);
+extern struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s);
 
 /**
  * Create structured symbols from the string. The library automatically parses
@@ -483,13 +483,13 @@ extern QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s);
  * @throw EINVAL invalid input object.
  * @throw ENOMEM unable to allocate memory for input objects.
  */
-extern QRcode_List *QRcode_encodeStringStructured(const char *string, int version, QRecLevel level, QRencodeMode hint, int casesensitive);
+extern struct QRcode_List *QRcode_encodeStringStructured(const char *string, int version, QRecLevel level, QRencodeMode hint, int casesensitive);
 
 /**
  * Same to QRcode_encodeStringStructured(), but encode whole data in 8-bit mode.
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  */
-extern QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version, QRecLevel level);
+extern struct QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version, QRecLevel level);
 
 /**
  * Create structured symbols from byte stream (may include '\0'). Wholde data
@@ -504,20 +504,20 @@ extern QRcode_List *QRcode_encodeString8bitStructured(const char *string, int ve
  * @throw EINVAL invalid input object.
  * @throw ENOMEM unable to allocate memory for input objects.
  */
-extern QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data, int version, QRecLevel level);
+extern struct QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data, int version, QRecLevel level);
 
 /**
  * Return the number of symbols included in a QRcode_List.
  * @param qrlist a head entry of a QRcode_List.
  * @return number of symbols in the list.
  */
-extern int QRcode_List_size(QRcode_List *qrlist);
+extern int QRcode_List_size(struct QRcode_List *qrlist);
 
 /**
  * Free the QRcode_List.
  * @param qrlist a head entry of a QRcode_List.
  */
-extern void QRcode_List_free(QRcode_List *qrlist);
+extern void QRcode_List_free(struct QRcode_List *qrlist);
 
 
 /******************************************************************************
