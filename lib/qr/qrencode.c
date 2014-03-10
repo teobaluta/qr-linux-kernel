@@ -786,11 +786,11 @@ EXPORT_SYMBOL_GPL(QRcode_encodeString8bitMQR);
  * Structured QR-code encoding
  *****************************************************************************/
 
-static QRcode_List *QRcode_List_newEntry(void)
+static struct QRcode_List *QRcode_List_newEntry(void)
 {
-	QRcode_List *entry;
+	struct QRcode_List *entry;
 
-	entry = kmalloc(sizeof(QRcode_List), GFP_ATOMIC);
+	entry = kmalloc(sizeof(struct QRcode_List), GFP_ATOMIC);
 	if (entry == NULL)
 		return NULL;
 
@@ -800,7 +800,7 @@ static QRcode_List *QRcode_List_newEntry(void)
 	return entry;
 }
 
-static void QRcode_List_freeEntry(QRcode_List * entry)
+static void QRcode_List_freeEntry(struct QRcode_List * entry)
 {
 	if (entry != NULL) {
 		QRcode_free(entry->code);
@@ -808,9 +808,9 @@ static void QRcode_List_freeEntry(QRcode_List * entry)
 	}
 }
 
-void QRcode_List_free(QRcode_List * qrlist)
+void QRcode_List_free(struct QRcode_List * qrlist)
 {
-	QRcode_List *list = qrlist, *next;
+	struct QRcode_List *list = qrlist, *next;
 
 	while (list != NULL) {
 		next = list->next;
@@ -820,9 +820,9 @@ void QRcode_List_free(QRcode_List * qrlist)
 }
 EXPORT_SYMBOL_GPL(QRcode_List_free);
 
-int QRcode_List_size(QRcode_List * qrlist)
+int QRcode_List_size(struct QRcode_List * qrlist)
 {
-	QRcode_List *list = qrlist;
+	struct QRcode_List *list = qrlist;
 	int size = 0;
 
 	while (list != NULL) {
@@ -848,11 +848,11 @@ static unsigned char QRcode_parity(const char *str, int size)
 }
 #endif
 
-QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct * s)
+struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct * s)
 {
-	QRcode_List *head = NULL;
-	QRcode_List *tail = NULL;
-	QRcode_List *entry;
+	struct QRcode_List *head = NULL;
+	struct QRcode_List *tail = NULL;
+	struct QRcode_List *entry;
 	struct QRinput_InputList *list = s->head;
 
 	while (list != NULL) {
@@ -883,10 +883,10 @@ ABORT:
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeInputStructured);
 
-static QRcode_List *QRcode_encodeInputToStructured(struct QRinput * input)
+static struct QRcode_List *QRcode_encodeInputToStructured(struct QRinput * input)
 {
 	struct QRinput_Struct *s;
-	QRcode_List *codes;
+	struct QRcode_List *codes;
 
 	s = QRinput_splitQRinputToStruct(input);
 	if (s == NULL)
@@ -898,7 +898,7 @@ static QRcode_List *QRcode_encodeInputToStructured(struct QRinput * input)
 	return codes;
 }
 
-static QRcode_List *QRcode_encodeDataStructuredReal(int size,
+static struct QRcode_List *QRcode_encodeDataStructuredReal(int size,
 						    const unsigned char *data,
 						    int version,
 						    QRecLevel level,
@@ -907,7 +907,7 @@ static QRcode_List *QRcode_encodeDataStructuredReal(int size,
 						    int casesensitive)
 {
 	struct QRinput *input;
-	QRcode_List *codes;
+	struct QRcode_List *codes;
 	int ret;
 
 	/*
@@ -941,7 +941,7 @@ static QRcode_List *QRcode_encodeDataStructuredReal(int size,
 	return codes;
 }
 
-QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data,
+struct QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data,
 					 int version, QRecLevel level)
 {
 	return QRcode_encodeDataStructuredReal(size, data, version, level, 1,
@@ -949,7 +949,7 @@ QRcode_List *QRcode_encodeDataStructured(int size, const unsigned char *data,
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeDataStructured);
 
-QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version,
+struct QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version,
 					       QRecLevel level)
 {
 	/*
@@ -964,7 +964,7 @@ QRcode_List *QRcode_encodeString8bitStructured(const char *string, int version,
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeString8bitStructured);
 
-QRcode_List *QRcode_encodeStringStructured(const char *string, int version,
+struct QRcode_List *QRcode_encodeStringStructured(const char *string, int version,
 					   QRecLevel level, QRencodeMode hint,
 					   int casesensitive)
 {
