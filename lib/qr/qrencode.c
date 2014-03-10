@@ -418,16 +418,13 @@ static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 	struct QRcode *qrcode = NULL;
 
 	if (input->mqr) {
-		//errno = EINVAL;
 		return NULL;
 	}
 
 	if (input->version < 0 || input->version > QRSPEC_VERSION_MAX) {
-		//errno = EINVAL;
 		return NULL;
 	}
 	if (input->level > QR_ECLEVEL_H) {
-		//errno = EINVAL;
 		return NULL;
 	}
 
