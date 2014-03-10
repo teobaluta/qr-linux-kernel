@@ -86,16 +86,16 @@ static int Mask_writeFormatInformation(int width, unsigned char *frame,
 	int b = 0;\
 \
 	for (y = 0; y < width; y++) {\
-		for (x = 0; x<width; x++) {\
+		for (x = 0; x < width; x++) {\
 			if (*s & 0x80) {\
 				*d = *s;\
 			} else {\
 				*d = *s ^ ((__exp__) == 0);\
-			}\
+			} \
 			b += (int)(*d & 1);\
 			s++; d++;\
-		}\
-	}\
+		} \
+	} \
 	return b;
 
 static int Mask_mask0(int width, const unsigned char *s, unsigned char *d)
@@ -180,11 +180,6 @@ unsigned char *Mask_makeMask(int width, unsigned char *frame, int mask,
 	return masked;
 }
 
-//static int n1;
-//static int n2;
-//static int n3;
-//static int n4;
-
 static int Mask_calcN1N3(int length, int *runLength)
 {
 	int i;
@@ -192,12 +187,11 @@ static int Mask_calcN1N3(int length, int *runLength)
 	int fact;
 
 	for (i = 0; i < length; i++) {
-		if (runLength[i] >= 5) {
+		if (runLength[i] >= 5)
 			demerit += N1 + (runLength[i] - 5);
-			//n1 += N1 + (runLength[i] - 5);
-		}
 		if ((i & 1)) {
-			if (i >= 3 && i < length - 2 && (runLength[i] % 3) == 0) {
+			if (i >= 3 && i < length - 2
+			    && (runLength[i] % 3) == 0) {
 				fact = runLength[i] / 3;
 				if (runLength[i - 2] == fact &&
 				    runLength[i - 1] == fact &&
@@ -206,12 +200,10 @@ static int Mask_calcN1N3(int length, int *runLength)
 					if (i == 3
 					    || runLength[i - 3] >= 4 * fact) {
 						demerit += N3;
-						//n3 += N3;
 					} else if (i + 4 >= length
 						   || runLength[i + 3] >=
 						   4 * fact) {
 						demerit += N3;
-						//n3 += N3;
 					}
 				}
 			}
@@ -233,9 +225,8 @@ static int Mask_calcN2(int width, unsigned char *frame)
 		for (x = 1; x < width; x++) {
 			b22 = p[0] & p[-1] & p[-width] & p[-width - 1];
 			w22 = p[0] | p[-1] | p[-width] | p[-width - 1];
-			if ((b22 | (w22 ^ 1)) & 1) {
+			if ((b22 | (w22 ^ 1)) & 1)
 				demerit += N2;
-			}
 			p++;
 		}
 		p++;
@@ -314,11 +305,10 @@ unsigned char *Mask_mask(int width, unsigned char *frame, QRecLevel level)
 	bestMask = NULL;
 
 	for (i = 0; i < maskNum; i++) {
-//              n1 = n2 = n3 = n4 = 0;
 		demerit = 0;
 		blacks = maskMakers[i] (width, frame, mask);
 		blacks += Mask_writeFormatInformation(width, mask, i, level);
-		bratio = (200 * blacks + w2) / w2 / 2;	/* (int)(100*blacks/w2+0.5) */
+		bratio = (200 * blacks + w2) / w2 / 2;
 		demerit = (abs(bratio - 50) / 5) * N4;
 		demerit += Mask_evaluateSymbol(width, mask);
 		if (demerit < minDemerit) {
