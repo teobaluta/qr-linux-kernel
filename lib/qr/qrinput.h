@@ -41,7 +41,14 @@ struct QRinput_List {
 /******************************************************************************
  * Input Data
  *****************************************************************************/
-struct _QRinput {
+
+/**
+ * Singly linked list to contain input strings. An instance of this class
+ * contains its version and error correction level too. It is required to
+ * set them by QRinput_setVersion() and QRinput_setErrorCorrectionLevel(),
+ * or use QRinput_new2() to instantiate an object.
+ */
+struct QRinput {
 	int version;
 	QRecLevel level;
 	struct QRinput_List *head;
@@ -72,7 +79,7 @@ struct _QRinput_Struct {
  * @param input input data.
  * @return padded merged byte stream
  */
-extern unsigned char *QRinput_getByteStream(QRinput *input);
+extern unsigned char *QRinput_getByteStream(struct QRinput *input);
 
 
 extern int QRinput_estimateBitsModeNum(int size);
@@ -80,7 +87,7 @@ extern int QRinput_estimateBitsModeAn(int size);
 extern int QRinput_estimateBitsMode8(int size);
 extern int QRinput_estimateBitsModeKanji(int size);
 
-extern QRinput *QRinput_dup(QRinput *input);
+extern struct QRinput *QRinput_dup(struct QRinput *input);
 
 extern const signed char QRinput_anTable[128];
 
@@ -109,12 +116,12 @@ extern const signed char QRinput_anTable[128];
 #define MAX_STRUCTURED_SYMBOLS 16
 
 #ifdef WITH_TESTS
-extern struct BitStream *QRinput_mergeBitStream(QRinput *input);
-extern struct BitStream *QRinput_getBitStream(QRinput *input);
-extern int QRinput_estimateBitStreamSize(QRinput *input, int version);
+extern struct BitStream *QRinput_mergeBitStream(struct QRinput *input);
+extern struct BitStream *QRinput_getBitStream(struct QRinput *input);
+extern int QRinput_estimateBitStreamSize(struct QRinput *input, int version);
 extern int QRinput_splitEntry(struct QRinput_List *entry, int bytes);
 extern int QRinput_lengthOfCode(QRencodeMode mode, int version, int bits);
-extern int QRinput_insertStructuredAppendHeader(QRinput *input, int size, int index, unsigned char parity);
+extern int QRinput_insertStructuredAppendHeader(struct QRinput *input, int size, int index, unsigned char parity);
 #endif
 
 #endif /* __QRINPUT_H__ */
