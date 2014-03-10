@@ -55,7 +55,8 @@ struct QRRawCode {
 	int count;
 };
 
-static void RSblock_initBlock(struct RSblock *block, int dl, unsigned char *data,
+static void RSblock_initBlock(struct RSblock *block, int dl,
+			      unsigned char *data,
 			      int el, unsigned char *ecc, RS *rs)
 {
 	block->dataLength = dl;
@@ -66,7 +67,8 @@ static void RSblock_initBlock(struct RSblock *block, int dl, unsigned char *data
 	encode_rs_char(rs, data, ecc);
 }
 
-static int RSblock_init(struct RSblock *blocks, int spec[5], unsigned char *data,
+static int RSblock_init(struct RSblock *blocks, int spec[5],
+			unsigned char *data,
 			unsigned char *ecc)
 {
 	int i;
