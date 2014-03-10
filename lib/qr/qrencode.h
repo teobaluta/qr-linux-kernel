@@ -21,8 +21,8 @@
  * symbology.
  *
  * \section encoding Encoding
- * 
- * There are two methods to encode data: <b>encoding a string/data</b> or 
+ *
+ * There are two methods to encode data: <b>encoding a string/data</b> or
  * <b>encoding a structured data</b>.
  *
  * \subsection encoding-string Encoding a string/data
@@ -66,7 +66,7 @@
  * to generate structured-appended symbols. This functions returns an instance
  * of ::QRcode_List. The returned list is a singly-linked list of QRcode: you
  * can retrieve each QR code in this way:
- *  
+ *
  * \code
  * QRcode_List *qrcodes;
  * QRcode_List *entry;
@@ -105,25 +105,25 @@ extern "C" {
  * Encoding mode.
  */
 typedef enum {
-	QR_MODE_NUL = -1,  ///< Terminator (NUL character). Internal use only
-	QR_MODE_NUM = 0,   ///< Numeric mode
-	QR_MODE_AN,        ///< Alphabet-numeric mode
-	QR_MODE_8,         ///< 8-bit data mode
-	QR_MODE_KANJI,     ///< Kanji (shift-jis) mode
-	QR_MODE_STRUCTURE, ///< Internal use only
-	QR_MODE_ECI,       ///< ECI mode
-	QR_MODE_FNC1FIRST,  ///< FNC1, first position
-	QR_MODE_FNC1SECOND, ///< FNC1, second position
+	QR_MODE_NUL = -1,   /* Terminator (NUL character). Internal use only */
+	QR_MODE_NUM = 0,    /* Numeric mode */
+	QR_MODE_AN,         /* Alphabet-numeric mode */
+	QR_MODE_8,          /* 8-bit data mode */
+	QR_MODE_KANJI,      /* Kanji (shift-jis) mode */
+	QR_MODE_STRUCTURE,  /* Internal use only */
+	QR_MODE_ECI,        /* ECI mode */
+	QR_MODE_FNC1FIRST,  /* FNC1, first position */
+	QR_MODE_FNC1SECOND, /* FNC1, second position */
 } QRencodeMode;
 
 /**
  * Level of error correction.
  */
 typedef enum {
-	QR_ECLEVEL_L = 0, ///< lowest
+	QR_ECLEVEL_L = 0, /* lowest */
 	QR_ECLEVEL_M,
 	QR_ECLEVEL_Q,
-	QR_ECLEVEL_H      ///< highest
+	QR_ECLEVEL_H      /* highest */
 } QRecLevel;
 
 /**
@@ -140,15 +140,6 @@ typedef enum {
 /******************************************************************************
  * Input data (qrinput.c)
  *****************************************************************************/
-
-/**
- * Singly linked list to contain input strings. An instance of this class
- * contains its version and error correction level too. It is required to
- * set them by QRinput_setVersion() and QRinput_setErrorCorrectionLevel(),
- * or use QRinput_new2() to instantiate an object.
- */
-//typedef struct _QRinput QRinput;
-
 /**
  * Instantiate an input data object. The version is set to 0 (auto-select)
  * and the error correction level is set to QR_ECLEVEL_L.
@@ -366,9 +357,9 @@ extern int QRinput_setFNC1Second(struct QRinput *input, unsigned char appid);
  * </pre>
  */
 struct QRcode {
-	int version;         ///< version of the symbol
-	int width;           ///< width of the symbol
-	unsigned char *data; ///< symbol data
+	int version;         /* version of the symbol */
+	int width;           /* width of the symbol */
+	unsigned char *data; /* symbol data */
 };
 
 /**
