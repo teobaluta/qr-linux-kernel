@@ -29,8 +29,10 @@ struct BitStream {
 
 extern struct BitStream *BitStream_new(void);
 extern int BitStream_append(struct BitStream *bstream, struct BitStream *arg);
-extern int BitStream_appendNum(struct BitStream *bstream, int bits, unsigned int num);
-extern int BitStream_appendBytes(struct BitStream *bstream, int size, unsigned char *data);
+extern int BitStream_appendNum(struct BitStream *bstream, int bits,
+			       unsigned int num);
+extern int BitStream_appendBytes(struct BitStream *bstream, int size,
+				 unsigned char *data);
 #define BitStream_size(__bstream__) (__bstream__->length)
 extern unsigned char *BitStream_toByte(struct BitStream *bstream);
 extern void BitStream_free(struct BitStream *bstream);
