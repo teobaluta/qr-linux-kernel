@@ -380,71 +380,6 @@ static unsigned char *FrameFiller_next(struct FrameFiller *filler)
 	return &p[y * w + x];
 }
 
-#ifdef WITH_TESTS
-extern unsigned char *FrameFiller_test(int version)
-{
-	int width;
-	unsigned char *frame, *p;
-	struct FrameFiller *filler;
-	int i, length;
-
-	width = QRspec_getWidth(version);
-	frame = QRspec_newFrame(version);
-	if (frame == NULL)
-		return NULL;
-	filler = FrameFiller_new(width, frame, 0);
-	if (filler == NULL) {
-		kfree(frame);
-		return NULL;
-	}
-	length = QRspec_getDataLength(version, QR_ECLEVEL_L) * 8
-	    + QRspec_getECCLength(version, QR_ECLEVEL_L) * 8
-	    + QRspec_getRemainder(version);
-	for (i = 0; i < length; i++) {
-		p = FrameFiller_next(filler);
-		if (p == NULL) {
-			kfree(filler);
-			kfree(frame);
-			return NULL;
-		}
-		*p = (unsigned char)(i & 0x7f) | 0x80;
-	}
-	kfree(filler);
-	return frame;
-}
-
-extern unsigned char *FrameFiller_testMQR(int version)
-{
-	int width;
-	unsigned char *frame, *p;
-	struct FrameFiller *filler;
-	int i, length;
-
-	width = MQRspec_getWidth(version);
-	frame = MQRspec_newFrame(version);
-	if (frame == NULL)
-		return NULL;
-	filler = FrameFiller_new(width, frame, 1);
-	if (filler == NULL) {
-		kfree(frame);
-		return NULL;
-	}
-	length = MQRspec_getDataLengthBit(version, QR_ECLEVEL_L)
-	    + MQRspec_getECCLength(version, QR_ECLEVEL_L) * 8;
-	for (i = 0; i < length; i++) {
-		p = FrameFiller_next(filler);
-		if (p == NULL) {
-			printk(KERN_ERR "Frame filler run over the frame!\n");
-			kfree(filler);
-			return frame;
-		}
-		*p = (unsigned char)(i & 0x7f) | 0x80;
-	}
-	free(filler);
-	return frame;
-}
-#endif
-
 /******************************************************************************
  * QR-code encoding
  *****************************************************************************/
@@ -538,11 +473,7 @@ static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 	}
 
 	/* masking */
-	if (mask == -2)
-		// just for debug purpose
-		masked = kmalloc(width * width, GFP_ATOMIC);
-		memcpy(masked, frame, width * width);
-	else if (mask < 0)
+	if (mask < 0)
 		masked = Mask_mask(width, frame, input->level);
 	else
 		masked = Mask_makeMask(width, frame, mask, input->level);
