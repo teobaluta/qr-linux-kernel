@@ -55,8 +55,8 @@ typedef struct {
 	int count;
 } QRRawCode;
 
-static void RSblock_initBlock(RSblock * block, int dl, unsigned char *data,
-			      int el, unsigned char *ecc, RS * rs)
+static void RSblock_initBlock(RSblock *block, int dl, unsigned char *data,
+			      int el, unsigned char *ecc, RS *rs)
 {
 	block->dataLength = dl;
 	block->data = data;
@@ -66,7 +66,7 @@ static void RSblock_initBlock(RSblock * block, int dl, unsigned char *data,
 	encode_rs_char(rs, data, ecc);
 }
 
-static int RSblock_init(RSblock * blocks, int spec[5], unsigned char *data,
+static int RSblock_init(RSblock *blocks, int spec[5], unsigned char *data,
 			unsigned char *ecc)
 {
 	int i;
@@ -109,8 +109,8 @@ static int RSblock_init(RSblock * blocks, int spec[5], unsigned char *data,
 	return 0;
 }
 
-static void QRraw_free(QRRawCode * raw);
-static QRRawCode *QRraw_new(struct QRinput * input)
+static void QRraw_free(QRRawCode *raw);
+static QRRawCode *QRraw_new(struct QRinput *input)
 {
 	QRRawCode *raw;
 	int spec[5], ret;
@@ -161,7 +161,7 @@ static QRRawCode *QRraw_new(struct QRinput * input)
  * @param raw raw code.
  * @return code
  */
-static unsigned char QRraw_getCode(QRRawCode * raw)
+static unsigned char QRraw_getCode(QRRawCode *raw)
 {
 	int col, row;
 	unsigned char ret;
@@ -184,7 +184,7 @@ static unsigned char QRraw_getCode(QRRawCode * raw)
 	return ret;
 }
 
-static void QRraw_free(QRRawCode * raw)
+static void QRraw_free(QRRawCode *raw)
 {
 	if (raw != NULL) {
 		kfree(raw->datacode);
@@ -209,8 +209,8 @@ typedef struct {
 	int count;
 } MQRRawCode;
 
-static void MQRraw_free(MQRRawCode * raw);
-static MQRRawCode *MQRraw_new(struct QRinput * input)
+static void MQRraw_free(MQRRawCode *raw);
+static MQRRawCode *MQRraw_new(struct QRinput *input)
 {
 	MQRRawCode *raw;
 	RS *rs;
@@ -264,7 +264,7 @@ static MQRRawCode *MQRraw_new(struct QRinput * input)
  * @param raw raw code.
  * @return code
  */
-static unsigned char MQRraw_getCode(MQRRawCode * raw)
+static unsigned char MQRraw_getCode(MQRRawCode *raw)
 {
 	unsigned char ret;
 
@@ -279,7 +279,7 @@ static unsigned char MQRraw_getCode(MQRRawCode * raw)
 	return ret;
 }
 
-static void MQRraw_free(MQRRawCode * raw)
+static void MQRraw_free(MQRRawCode *raw)
 {
 	if (raw != NULL) {
 		kfree(raw->datacode);
@@ -320,7 +320,7 @@ static FrameFiller *FrameFiller_new(int width, unsigned char *frame, int mqr)
 	return filler;
 }
 
-static unsigned char *FrameFiller_next(FrameFiller * filler)
+static unsigned char *FrameFiller_next(FrameFiller *filler)
 {
 	unsigned char *p;
 	int x, y, w;
@@ -462,7 +462,7 @@ static struct QRcode *QRcode_new(int version, int width, unsigned char *data)
 	return qrcode;
 }
 
-void QRcode_free(struct QRcode * qrcode)
+void QRcode_free(struct QRcode *qrcode)
 {
 	if (qrcode != NULL) {
 		kfree(qrcode->data);
@@ -471,7 +471,7 @@ void QRcode_free(struct QRcode * qrcode)
 }
 EXPORT_SYMBOL_GPL(QRcode_free);
 
-static struct QRcode *QRcode_encodeMask(struct QRinput * input, int mask)
+static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 {
 	int width, version;
 	QRRawCode *raw;
@@ -556,7 +556,7 @@ EXIT:
 	return qrcode;
 }
 
-static struct QRcode *QRcode_encodeMaskMQR(struct QRinput * input, int mask)
+static struct QRcode *QRcode_encodeMaskMQR(struct QRinput *input, int mask)
 {
 	int width, version;
 	MQRRawCode *raw;
@@ -643,7 +643,7 @@ EXIT:
 	return qrcode;
 }
 
-struct QRcode *QRcode_encodeInput(struct QRinput * input)
+struct QRcode *QRcode_encodeInput(struct QRinput *input)
 {
 	if (input->mqr) {
 		return QRcode_encodeMaskMQR(input, -1);
@@ -800,7 +800,7 @@ static struct QRcode_List *QRcode_List_newEntry(void)
 	return entry;
 }
 
-static void QRcode_List_freeEntry(struct QRcode_List * entry)
+static void QRcode_List_freeEntry(struct QRcode_List *entry)
 {
 	if (entry != NULL) {
 		QRcode_free(entry->code);
@@ -808,7 +808,7 @@ static void QRcode_List_freeEntry(struct QRcode_List * entry)
 	}
 }
 
-void QRcode_List_free(struct QRcode_List * qrlist)
+void QRcode_List_free(struct QRcode_List *qrlist)
 {
 	struct QRcode_List *list = qrlist, *next;
 
@@ -820,7 +820,7 @@ void QRcode_List_free(struct QRcode_List * qrlist)
 }
 EXPORT_SYMBOL_GPL(QRcode_List_free);
 
-int QRcode_List_size(struct QRcode_List * qrlist)
+int QRcode_List_size(struct QRcode_List *qrlist)
 {
 	struct QRcode_List *list = qrlist;
 	int size = 0;
@@ -834,7 +834,7 @@ int QRcode_List_size(struct QRcode_List * qrlist)
 }
 EXPORT_SYMBOL_GPL(QRcode_List_size);
 
-struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct * s)
+struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct *s)
 {
 	struct QRcode_List *head = NULL;
 	struct QRcode_List *tail = NULL;
@@ -856,9 +856,8 @@ struct QRcode_List *QRcode_encodeInputStructured(struct QRinput_Struct * s)
 			tail = tail->next;
 		}
 		tail->code = QRcode_encodeInput(list->input);
-		if (tail->code == NULL) {
+		if (tail->code == NULL)
 			goto ABORT;
-		}
 		list = list->next;
 	}
 
@@ -869,7 +868,7 @@ ABORT:
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeInputStructured);
 
-static struct QRcode_List *QRcode_encodeInputToStructured(struct QRinput * input)
+static struct QRcode_List *QRcode_encodeInputToStructured(struct QRinput *input)
 {
 	struct QRinput_Struct *s;
 	struct QRcode_List *codes;
