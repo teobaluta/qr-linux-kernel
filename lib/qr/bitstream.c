@@ -45,7 +45,6 @@ static int BitStream_allocate(struct BitStream *bstream, int length)
 	if (bstream == NULL)
 		return -1;
 
-
 	data = kmalloc(length, GFP_ATOMIC);
 	if (data == NULL)
 		return -1;
@@ -170,7 +169,8 @@ int BitStream_appendNum(struct BitStream *bstream, int bits, unsigned int num)
 	return ret;
 }
 
-int BitStream_appendBytes(struct BitStream *bstream, int size, unsigned char *data)
+int BitStream_appendBytes(struct BitStream *bstream, int size,
+			  unsigned char *data)
 {
 	struct BitStream *b;
 	int ret;
