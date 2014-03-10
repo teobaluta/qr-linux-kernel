@@ -38,7 +38,7 @@ struct BitStream *BitStream_new(void)
 	return bstream;
 }
 
-static int BitStream_allocate(struct BitStream * bstream, int length)
+static int BitStream_allocate(struct BitStream *bstream, int length)
 {
 	unsigned char *data;
 
@@ -120,7 +120,7 @@ static struct BitStream *BitStream_newFromBytes(int size, unsigned char *data)
 	return bstream;
 }
 
-int BitStream_append(struct BitStream * bstream, BitStream * arg)
+int BitStream_append(struct BitStream *bstream, BitStream *arg)
 {
 	unsigned char *data;
 
@@ -152,7 +152,7 @@ int BitStream_append(struct BitStream * bstream, BitStream * arg)
 	return 0;
 }
 
-int BitStream_appendNum(struct BitStream * bstream, int bits, unsigned int num)
+int BitStream_appendNum(struct BitStream *bstream, int bits, unsigned int num)
 {
 	struct BitStream *b;
 	int ret;
@@ -170,7 +170,7 @@ int BitStream_appendNum(struct BitStream * bstream, int bits, unsigned int num)
 	return ret;
 }
 
-int BitStream_appendBytes(struct BitStream * bstream, int size, unsigned char *data)
+int BitStream_appendBytes(struct BitStream *bstream, int size, unsigned char *data)
 {
 	struct BitStream *b;
 	int ret;
@@ -188,7 +188,7 @@ int BitStream_appendBytes(struct BitStream * bstream, int size, unsigned char *d
 	return ret;
 }
 
-unsigned char *BitStream_toByte(struct BitStream * bstream)
+unsigned char *BitStream_toByte(struct BitStream *bstream)
 {
 	int i, j, size, bytes;
 	unsigned char *data, v;
@@ -227,7 +227,7 @@ unsigned char *BitStream_toByte(struct BitStream * bstream)
 	return data;
 }
 
-void BitStream_free(struct BitStream * bstream)
+void BitStream_free(struct BitStream *bstream)
 {
 	if (bstream != NULL) {
 		kfree(bstream->data);
