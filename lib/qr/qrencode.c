@@ -374,7 +374,7 @@ static unsigned char *FrameFiller_next(struct FrameFiller *filler)
 	filler->y = y;
 
 	if (p[y * w + x] & 0x80) {
-		// This tail recursion could be optimized.
+		/* This tail recursion could be optimized. */
 		return FrameFiller_next(filler);
 	}
 	return &p[y * w + x];
