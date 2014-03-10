@@ -39,7 +39,7 @@
  * @param level
  * @return maximum size (bits)
  */
-extern int MQRspec_getDataLengthBit(int version, QRecLevel level);
+extern int MQRspec_getDataLengthBit(int version, enum QRecLevel level);
 
 /**
  * Return maximum data code length (bytes) for the version.
@@ -47,7 +47,7 @@ extern int MQRspec_getDataLengthBit(int version, QRecLevel level);
  * @param level
  * @return maximum size (bytes)
  */
-extern int MQRspec_getDataLength(int version, QRecLevel level);
+extern int MQRspec_getDataLength(int version, enum QRecLevel level);
 
 /**
  * Return maximum error correction code length (bytes) for the version.
@@ -55,7 +55,7 @@ extern int MQRspec_getDataLength(int version, QRecLevel level);
  * @param level
  * @return ECC size (bytes)
  */
-extern int MQRspec_getECCLength(int version, QRecLevel level);
+extern int MQRspec_getECCLength(int version, enum QRecLevel level);
 
 /**
  * Return a version number that satisfies the input code length.
@@ -63,7 +63,7 @@ extern int MQRspec_getECCLength(int version, QRecLevel level);
  * @param level
  * @return version number
  */
-extern int MQRspec_getMinimumVersion(int size, QRecLevel level);
+extern int MQRspec_getMinimumVersion(int size, enum QRecLevel level);
 
 /**
  * Return the width of the symbol for the version.
@@ -89,7 +89,7 @@ extern int MQRspec_getRemainder(int version);
  * @param version
  * @return the size of the appropriate length indicator (bits).
  */
-extern int MQRspec_lengthIndicator(QRencodeMode mode, int version);
+extern int MQRspec_lengthIndicator(enum QRencodeMode mode, int version);
 
 /**
  * Return the maximum length for the mode and version.
@@ -97,7 +97,7 @@ extern int MQRspec_lengthIndicator(QRencodeMode mode, int version);
  * @param version
  * @return the maximum length (bytes)
  */
-extern int MQRspec_maximumWords(QRencodeMode mode, int version);
+extern int MQRspec_maximumWords(enum QRencodeMode mode, int version);
 
 /******************************************************************************
  * Version information pattern
@@ -122,7 +122,7 @@ extern unsigned int MQRspec_getVersionPattern(int version);
  * @param level
  * @return BCH encoded format information pattern
  */
-extern unsigned int MQRspec_getFormatInfo(int mask, int version, QRecLevel level);
+extern unsigned int MQRspec_getFormatInfo(int mask, int version, enum QRecLevel level);
 
 /******************************************************************************
  * Frame

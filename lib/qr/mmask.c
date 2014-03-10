@@ -29,7 +29,7 @@
 
 static void MMask_writeFormatInformation(int version, int width,
 					 unsigned char *frame, int mask,
-					 QRecLevel level)
+					 enum QRecLevel level)
 {
 	unsigned int format;
 	unsigned char v;
@@ -105,7 +105,7 @@ unsigned char *MMask_makeMaskedFrame(int width, unsigned char *frame, int mask)
 #endif
 
 unsigned char *MMask_makeMask(int version, unsigned char *frame, int mask,
-			      QRecLevel level)
+			      enum QRecLevel level)
 {
 	unsigned char *masked;
 	int width;
@@ -146,7 +146,7 @@ static int MMask_evaluateSymbol(int width, unsigned char *frame)
 	return (sum1 <= sum2) ? (sum1 * 16 + sum2) : (sum2 * 16 + sum1);
 }
 
-unsigned char *MMask_mask(int version, unsigned char *frame, QRecLevel level)
+unsigned char *MMask_mask(int version, unsigned char *frame, enum QRecLevel level)
 {
 	int i;
 	unsigned char *mask, *bestMask;

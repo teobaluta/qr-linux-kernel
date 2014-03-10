@@ -46,7 +46,7 @@ static const MQRspec_Capacity mqrspecCapacity[MQRSPEC_VERSION_MAX + 1] = {
 	{17, {8, 10, 14, 0}}
 };
 
-int MQRspec_getDataLengthBit(int version, QRecLevel level)
+int MQRspec_getDataLengthBit(int version, enum QRecLevel level)
 {
 	int w;
 	int ecc;
@@ -58,12 +58,12 @@ int MQRspec_getDataLengthBit(int version, QRecLevel level)
 	return w * w - 64 - ecc * 8;
 }
 
-int MQRspec_getDataLength(int version, QRecLevel level)
+int MQRspec_getDataLength(int version, enum QRecLevel level)
 {
 	return (MQRspec_getDataLengthBit(version, level) + 4) / 8;
 }
 
-int MQRspec_getECCLength(int version, QRecLevel level)
+int MQRspec_getECCLength(int version, enum QRecLevel level)
 {
 	return mqrspecCapacity[version].ec[level];
 }
@@ -87,12 +87,12 @@ static const int lengthTableBits[4][4] = {
 	{0, 0, 3, 4}
 };
 
-int MQRspec_lengthIndicator(QRencodeMode mode, int version)
+int MQRspec_lengthIndicator(enum QRencodeMode mode, int version)
 {
 	return lengthTableBits[mode][version - 1];
 }
 
-int MQRspec_maximumWords(QRencodeMode mode, int version)
+int MQRspec_maximumWords(enum QRencodeMode mode, int version)
 {
 	int bits;
 	int words;
@@ -127,7 +127,7 @@ static const int typeTable[MQRSPEC_VERSION_MAX + 1][3] = {
 	{5, 6, 7}
 };
 
-unsigned int MQRspec_getFormatInfo(int mask, int version, QRecLevel level)
+unsigned int MQRspec_getFormatInfo(int mask, int version, enum QRecLevel level)
 {
 	int type;
 

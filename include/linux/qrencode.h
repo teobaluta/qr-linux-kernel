@@ -158,7 +158,7 @@ extern struct QRinput *QRinput_new(void);
  * @throw ENOMEM unable to allocate memory for input objects.
  * @throw EINVAL invalid arguments.
  */
-extern struct QRinput *QRinput_new2(int version, QRecLevel level);
+extern struct QRinput *QRinput_new2(int version, enum QRecLevel level);
 
 /**
  * Instantiate an input data object. Object's Micro QR Code flag is set.
@@ -170,7 +170,7 @@ extern struct QRinput *QRinput_new2(int version, QRecLevel level);
  * @throw ENOMEM unable to allocate memory for input objects.
  * @throw EINVAL invalid arguments.
  */
-extern struct QRinput *QRinput_newMQR(int version, QRecLevel level);
+extern struct QRinput *QRinput_newMQR(int version, enum QRecLevel level);
 
 /**
  * Append data to an input object.
@@ -224,7 +224,7 @@ extern int QRinput_setVersion(struct QRinput *input, int version);
  * @param input input object.
  * @return Current error correcntion level.
  */
-extern QRecLevel QRinput_getErrorCorrectionLevel(struct QRinput *input);
+extern enum QRecLevel QRinput_getErrorCorrectionLevel(struct QRinput *input);
 
 /**
  * Set error correction level of the QR code that is to be encoded.
