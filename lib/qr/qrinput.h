@@ -67,7 +67,10 @@ struct QRinput_InputList {
 	struct QRinput_InputList *next;
 };
 
-struct _QRinput_Struct {
+/**
+ * Set of QRinput for structured symbols.
+ */
+struct QRinput_Struct {
 	int size;					///< number of structured symbols
 	int parity;
 	struct QRinput_InputList *head;
