@@ -1587,11 +1587,11 @@ static void QRinput_InputList_freeEntry(struct QRinput_InputList * entry)
 	}
 }
 
-QRinput_Struct *QRinput_Struct_new(void)
+struct QRinput_Struct *QRinput_Struct_new(void)
 {
-	QRinput_Struct *s;
+	struct QRinput_Struct *s;
 
-	s = kmalloc(sizeof(QRinput_Struct), GFP_ATOMIC);
+	s = kmalloc(sizeof(struct QRinput_Struct), GFP_ATOMIC);
 	if (s == NULL)
 		return NULL;
 
@@ -1603,12 +1603,12 @@ QRinput_Struct *QRinput_Struct_new(void)
 	return s;
 }
 
-void QRinput_Struct_setParity(QRinput_Struct * s, unsigned char parity)
+void struct QRinput_Struct_setParity(struct QRinput_Struct * s, unsigned char parity)
 {
 	s->parity = (int)parity;
 }
 
-int QRinput_Struct_appendInput(QRinput_Struct * s, struct QRinput * input)
+int QRinput_Struct_appendInput(struct QRinput_Struct * s, struct QRinput * input)
 {
 	struct QRinput_InputList *e;
 
@@ -1633,7 +1633,7 @@ int QRinput_Struct_appendInput(QRinput_Struct * s, struct QRinput * input)
 	return s->size;
 }
 
-void QRinput_Struct_free(QRinput_Struct * s)
+void QRinput_Struct_free(struct QRinput_Struct * s)
 {
 	struct QRinput_InputList *list, *next;
 
@@ -1648,7 +1648,7 @@ void QRinput_Struct_free(QRinput_Struct * s)
 	}
 }
 
-static unsigned char QRinput_Struct_calcParity(QRinput_Struct * s)
+static unsigned char QRinput_Struct_calcParity(struct QRinput_Struct * s)
 {
 	struct QRinput_InputList *list;
 	unsigned char parity = 0;
@@ -1703,10 +1703,10 @@ static int QRinput_splitEntry(struct QRinput_List * entry, int bytes)
 	return 0;
 }
 
-QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput * input)
+struct QRinput_Struct *QRinput_splitQRinputToStruct(struct QRinput * input)
 {
 	struct QRinput *p;
-	QRinput_Struct *s;
+	struct QRinput_Struct *s;
 	int bits, maxbits, nextbits, bytes, ret;
 	struct QRinput_List *list, *next, *prev;
 
@@ -1815,7 +1815,7 @@ ABORT:
 	return NULL;
 }
 
-int QRinput_Struct_insertStructuredAppendHeaders(QRinput_Struct * s)
+int QRinput_Struct_insertStructuredAppendHeaders(struct QRinput_Struct * s)
 {
 	int num, i;
 	struct QRinput_InputList *list;
