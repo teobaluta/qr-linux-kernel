@@ -80,7 +80,7 @@ static void QRinput_List_freeEntry(struct QRinput_List * entry)
 	}
 }
 
-static struct QRinput_List *QRinput_List_dup(QRinput_List * entry)
+static struct QRinput_List *QRinput_List_dup(struct QRinput_List * entry)
 {
 	struct QRinput_List *n;
 
@@ -332,7 +332,7 @@ static unsigned char QRinput_calcParity(struct QRinput * input)
 	return parity;
 }
 
-struct QRinput *QRinput_dup(QRinput * input)
+struct QRinput *QRinput_dup(struct QRinput * input)
 {
 	struct QRinput *n;
 	struct QRinput_List *list, *e;
@@ -1603,7 +1603,7 @@ struct QRinput_Struct *QRinput_Struct_new(void)
 	return s;
 }
 
-void struct QRinput_Struct_setParity(struct QRinput_Struct * s, unsigned char parity)
+void QRinput_Struct_setParity(struct QRinput_Struct * s, unsigned char parity)
 {
 	s->parity = (int)parity;
 }
