@@ -36,12 +36,12 @@
  * Raw code
  *****************************************************************************/
 
-typedef struct {
+struct RSblock {
 	int dataLength;
 	unsigned char *data;
 	int eccLength;
 	unsigned char *ecc;
-} RSblock;
+};
 
 typedef struct {
 	int version;
@@ -51,11 +51,11 @@ typedef struct {
 	unsigned char *ecccode;
 	int b1;
 	int blocks;
-	RSblock *rsblock;
+	struct RSblock *rsblock;
 	int count;
 } QRRawCode;
 
-static void RSblock_initBlock(RSblock *block, int dl, unsigned char *data,
+static void RSblock_initBlock(struct RSblock *block, int dl, unsigned char *data,
 			      int el, unsigned char *ecc, RS *rs)
 {
 	block->dataLength = dl;
@@ -66,11 +66,11 @@ static void RSblock_initBlock(RSblock *block, int dl, unsigned char *data,
 	encode_rs_char(rs, data, ecc);
 }
 
-static int RSblock_init(RSblock *blocks, int spec[5], unsigned char *data,
+static int RSblock_init(struct RSblock *blocks, int spec[5], unsigned char *data,
 			unsigned char *ecc)
 {
 	int i;
-	RSblock *block;
+	struct RSblock *block;
 	unsigned char *dp, *ep;
 	RS *rs;
 	int el, dl;
@@ -139,7 +139,7 @@ static QRRawCode *QRraw_new(struct QRinput *input)
 	}
 
 	raw->blocks = QRspec_rsBlockNum(spec);
-	raw->rsblock = kcalloc(raw->blocks, sizeof(RSblock), GFP_ATOMIC);
+	raw->rsblock = kcalloc(raw->blocks, sizeof(struct RSblock), GFP_ATOMIC);
 	if (raw->rsblock == NULL) {
 		QRraw_free(raw);
 		return NULL;
@@ -203,7 +203,7 @@ typedef struct {
 	int eccLength;
 	unsigned char *datacode;
 	unsigned char *ecccode;
-	RSblock *rsblock;
+	struct RSblock *rsblock;
 	int oddbits;
 	int count;
 } MQRRawCode;
@@ -236,7 +236,7 @@ static MQRRawCode *MQRraw_new(struct QRinput *input)
 		return NULL;
 	}
 
-	raw->rsblock = kcalloc(1, sizeof(RSblock), GFP_ATOMIC);
+	raw->rsblock = kcalloc(1, sizeof(struct RSblock), GFP_ATOMIC);
 	if (raw->rsblock == NULL) {
 		MQRraw_free(raw);
 		return NULL;
