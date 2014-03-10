@@ -169,9 +169,8 @@ static unsigned char QRraw_getCode(QRRawCode *raw)
 	if (raw->count < raw->dataLength) {
 		row = raw->count % raw->blocks;
 		col = raw->count / raw->blocks;
-		if (col >= raw->rsblock[0].dataLength) {
+		if (col >= raw->rsblock[0].dataLength)
 			row += raw->b1;
-		}
 		ret = raw->rsblock[row].data[col];
 	} else if (raw->count < raw->dataLength + raw->eccLength) {
 		row = (raw->count - raw->dataLength) % raw->blocks;
@@ -268,13 +267,13 @@ static unsigned char MQRraw_getCode(MQRRawCode *raw)
 {
 	unsigned char ret;
 
-	if (raw->count < raw->dataLength) {
+	if (raw->count < raw->dataLength)
 		ret = raw->datacode[raw->count];
-	} else if (raw->count < raw->dataLength + raw->eccLength) {
+	else if (raw->count < raw->dataLength + raw->eccLength) {
 		ret = raw->ecccode[raw->count - raw->dataLength];
-	} else {
+	else
 		return 0;
-	}
+
 	raw->count++;
 	return ret;
 }
@@ -536,17 +535,18 @@ static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 	}
 
 	/* masking */
-	if (mask == -2) {	// just for debug purpose
+	if (mask == -2)
+		// just for debug purpose
 		masked = kmalloc(width * width, GFP_ATOMIC);
 		memcpy(masked, frame, width * width);
-	} else if (mask < 0) {
+	else if (mask < 0)
 		masked = Mask_mask(width, frame, input->level);
-	} else {
+	else
 		masked = Mask_makeMask(width, frame, mask, input->level);
-	}
-	if (masked == NULL) {
+
+	if (masked == NULL)
 		goto EXIT;
-	}
+
 	qrcode = QRcode_new(version, width, masked);
 
 EXIT:
@@ -625,14 +625,13 @@ static struct QRcode *QRcode_encodeMaskMQR(struct QRinput *input, int mask)
 	raw = NULL;
 
 	/* masking */
-	if (mask < 0) {
+	if (mask < 0)
 		masked = MMask_mask(version, frame, input->level);
-	} else {
+	else
 		masked = MMask_makeMask(version, frame, mask, input->level);
-	}
-	if (masked == NULL) {
+
+	if (masked == NULL)
 		goto EXIT;
-	}
 
 	qrcode = QRcode_new(version, width, masked);
 
@@ -645,11 +644,11 @@ EXIT:
 
 struct QRcode *QRcode_encodeInput(struct QRinput *input)
 {
-	if (input->mqr) {
+	if (input->mqr)
 		return QRcode_encodeMaskMQR(input, -1);
-	} else {
+	else
 		return QRcode_encodeMask(input, -1);
-	}
+
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeInput);
 
@@ -672,11 +671,11 @@ static struct QRcode *QRcode_encodeStringReal(const char *string, int version,
 	   }
 	 */
 
-	if (mqr) {
+	if (mqr)
 		input = QRinput_newMQR(version, level);
-	} else {
+	else
 		input = QRinput_new2(version, level);
-	}
+
 	if (input == NULL)
 		return NULL;
 
@@ -721,11 +720,11 @@ static struct QRcode *QRcode_encodeDataReal(const unsigned char *data, int lengt
 	   }
 	 */
 
-	if (mqr) {
+	if (mqr)
 		input = QRinput_newMQR(version, level);
-	} else {
+	else
 		input = QRinput_new2(version, level);
-	}
+
 	if (input == NULL)
 		return NULL;
 
