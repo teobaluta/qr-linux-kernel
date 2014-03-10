@@ -110,7 +110,7 @@ static int RSblock_init(RSblock * blocks, int spec[5], unsigned char *data,
 }
 
 static void QRraw_free(QRRawCode * raw);
-static QRRawCode *QRraw_new(QRinput * input)
+static QRRawCode *QRraw_new(struct QRinput * input)
 {
 	QRRawCode *raw;
 	int spec[5], ret;
@@ -210,7 +210,7 @@ typedef struct {
 } MQRRawCode;
 
 static void MQRraw_free(MQRRawCode * raw);
-static MQRRawCode *MQRraw_new(QRinput * input)
+static MQRRawCode *MQRraw_new(struct QRinput * input)
 {
 	MQRRawCode *raw;
 	RS *rs;
@@ -471,7 +471,7 @@ void QRcode_free(QRcode * qrcode)
 }
 EXPORT_SYMBOL_GPL(QRcode_free);
 
-static QRcode *QRcode_encodeMask(QRinput * input, int mask)
+static QRcode *QRcode_encodeMask(struct QRinput * input, int mask)
 {
 	int width, version;
 	QRRawCode *raw;
@@ -556,7 +556,7 @@ EXIT:
 	return qrcode;
 }
 
-static QRcode *QRcode_encodeMaskMQR(QRinput * input, int mask)
+static QRcode *QRcode_encodeMaskMQR(struct QRinput * input, int mask)
 {
 	int width, version;
 	MQRRawCode *raw;
@@ -643,7 +643,7 @@ EXIT:
 	return qrcode;
 }
 
-QRcode *QRcode_encodeInput(QRinput * input)
+QRcode *QRcode_encodeInput(struct QRinput * input)
 {
 	if (input->mqr) {
 		return QRcode_encodeMaskMQR(input, -1);
@@ -657,7 +657,7 @@ static QRcode *QRcode_encodeStringReal(const char *string, int version,
 				       QRecLevel level, int mqr,
 				       QRencodeMode hint, int casesensitive)
 {
-	QRinput *input;
+	struct QRinput *input;
 	QRcode *code;
 	int ret;
 
@@ -710,7 +710,7 @@ EXPORT_SYMBOL_GPL(QRcode_encodeStringMQR);
 static QRcode *QRcode_encodeDataReal(const unsigned char *data, int length,
 				     int version, QRecLevel level, int mqr)
 {
-	QRinput *input;
+	struct QRinput *input;
 	QRcode *code;
 	int ret;
 
@@ -883,7 +883,7 @@ ABORT:
 }
 EXPORT_SYMBOL_GPL(QRcode_encodeInputStructured);
 
-static QRcode_List *QRcode_encodeInputToStructured(QRinput * input)
+static QRcode_List *QRcode_encodeInputToStructured(struct QRinput * input)
 {
 	QRinput_Struct *s;
 	QRcode_List *codes;
@@ -906,7 +906,7 @@ static QRcode_List *QRcode_encodeDataStructuredReal(int size,
 						    QRencodeMode hint,
 						    int casesensitive)
 {
-	QRinput *input;
+	struct QRinput *input;
 	QRcode_List *codes;
 	int ret;
 

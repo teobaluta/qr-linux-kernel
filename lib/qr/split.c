@@ -73,13 +73,13 @@ static QRencodeMode Split_identifyMode(const char *string, QRencodeMode hint)
 	return QR_MODE_8;
 }
 
-static int Split_eatNum(const char *string, QRinput * input, QRencodeMode hint);
-static int Split_eatAn(const char *string, QRinput * input, QRencodeMode hint);
-static int Split_eat8(const char *string, QRinput * input, QRencodeMode hint);
-static int Split_eatKanji(const char *string, QRinput * input,
+static int Split_eatNum(const char *string, struct QRinput * input, QRencodeMode hint);
+static int Split_eatAn(const char *string, struct QRinput * input, QRencodeMode hint);
+static int Split_eat8(const char *string, struct QRinput * input, QRencodeMode hint);
+static int Split_eatKanji(const char *string, struct QRinput * input,
 			  QRencodeMode hint);
 
-static int Split_eatNum(const char *string, QRinput * input, QRencodeMode hint)
+static int Split_eatNum(const char *string, struct QRinput * input, QRencodeMode hint)
 {
 	const char *p;
 	int ret;
@@ -118,7 +118,7 @@ static int Split_eatNum(const char *string, QRinput * input, QRencodeMode hint)
 	return run;
 }
 
-static int Split_eatAn(const char *string, QRinput * input, QRencodeMode hint)
+static int Split_eatAn(const char *string, struct QRinput * input, QRencodeMode hint)
 {
 	const char *p, *q;
 	int ret;
@@ -169,7 +169,7 @@ static int Split_eatAn(const char *string, QRinput * input, QRencodeMode hint)
 	return run;
 }
 
-static int Split_eatKanji(const char *string, QRinput * input,
+static int Split_eatKanji(const char *string, struct QRinput * input,
 			  QRencodeMode hint)
 {
 	const char *p;
@@ -189,7 +189,7 @@ static int Split_eatKanji(const char *string, QRinput * input,
 	return run;
 }
 
-static int Split_eat8(const char *string, QRinput * input, QRencodeMode hint)
+static int Split_eat8(const char *string, struct QRinput * input, QRencodeMode hint)
 {
 	const char *p, *q;
 	QRencodeMode mode;
@@ -262,7 +262,7 @@ static int Split_eat8(const char *string, QRinput * input, QRencodeMode hint)
 	return run;
 }
 
-static int Split_splitString(const char *string, QRinput * input,
+static int Split_splitString(const char *string, struct QRinput * input,
 			     QRencodeMode hint)
 {
 	int length;
@@ -313,7 +313,7 @@ static char *dupAndToUpper(const char *str, QRencodeMode hint)
 	return newstr;
 }
 
-int Split_splitStringToQRinput(const char *string, QRinput * input,
+int Split_splitStringToQRinput(const char *string, struct QRinput * input,
 			       QRencodeMode hint, int casesensitive)
 {
 	char *newstr;
