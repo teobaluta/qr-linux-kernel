@@ -42,18 +42,17 @@ static int BitStream_allocate(struct BitStream * bstream, int length)
 {
 	unsigned char *data;
 
-	if (bstream == NULL) {
+	if (bstream == NULL)
 		return -1;
-	}
+
 
 	data = kmalloc(length, GFP_ATOMIC);
-	if (data == NULL) {
+	if (data == NULL)
 		return -1;
-	}
 
-	if (bstream->data) {
+	if (bstream->data)
 		kfree(bstream->data);
-	}
+
 	bstream->length = length;
 	bstream->data = data;
 
@@ -133,9 +132,9 @@ int BitStream_append(struct BitStream * bstream, BitStream * arg)
 		return 0;
 
 	if (bstream->length == 0) {
-		if (BitStream_allocate(bstream, arg->length)) {
+		if (BitStream_allocate(bstream, arg->length))
 			return -1;
-		}
+
 		memcpy(bstream->data, arg->data, arg->length);
 		return 0;
 	}
