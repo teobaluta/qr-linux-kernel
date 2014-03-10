@@ -417,16 +417,14 @@ static struct QRcode *QRcode_encodeMask(struct QRinput *input, int mask)
 	int i, j;
 	struct QRcode *qrcode = NULL;
 
-	if (input->mqr) {
+	if (input->mqr)
 		return NULL;
-	}
 
-	if (input->version < 0 || input->version > QRSPEC_VERSION_MAX) {
+	if (input->version < 0 || input->version > QRSPEC_VERSION_MAX)
 		return NULL;
-	}
-	if (input->level > QR_ECLEVEL_H) {
+
+	if (input->level > QR_ECLEVEL_H)
 		return NULL;
-	}
 
 	raw = QRraw_new(input);
 	if (raw == NULL)
@@ -496,20 +494,14 @@ static struct QRcode *QRcode_encodeMaskMQR(struct QRinput *input, int mask)
 	int i, j;
 	struct QRcode *qrcode = NULL;
 
-	/*
-	   if(!input->mqr) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	   if(input->version <= 0 || input->version > MQRSPEC_VERSION_MAX) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	   if(input->level > QR_ECLEVEL_Q) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (!input->mqr)
+		return NULL;
+
+	if (input->version <= 0 || input->version > MQRSPEC_VERSION_MAX)
+		return NULL;
+
+	if (input->level > QR_ECLEVEL_Q)
+		return NULL;
 
 	raw = MQRraw_new(input);
 	if (raw == NULL)
@@ -591,16 +583,12 @@ static struct QRcode *QRcode_encodeStringReal(const char *string, int version,
 	struct QRcode *code;
 	int ret;
 
-	/*
-	   if(string == NULL) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	   if(hint != QR_MODE_8 && hint != QR_MODE_KANJI) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (string == NULL)
+		return NULL;
+
+	if (hint != QR_MODE_8 && hint != QR_MODE_KANJI)
+		return NULL;
+
 
 	if (mqr)
 		input = QRinput_newMQR(version, level);
@@ -647,12 +635,8 @@ static struct QRcode *QRcode_encodeDataReal(const unsigned char *data,
 	struct QRcode *code;
 	int ret;
 
-	/*
-	   if(data == NULL || length == 0) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (data == NULL || length == 0)
+		return NULL;
 
 	if (mqr)
 		input = QRinput_newMQR(version, level);
@@ -683,12 +667,9 @@ EXPORT_SYMBOL_GPL(QRcode_encodeData);
 struct QRcode *QRcode_encodeString8bit(const char *string, int version,
 				QRecLevel level)
 {
-	/*
-	   if(string == NULL) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (string == NULL)
+		return NULL;
+
 	return QRcode_encodeDataReal((unsigned char *)string, strlen(string),
 				     version, level, 0);
 }
@@ -704,12 +685,9 @@ EXPORT_SYMBOL_GPL(QRcode_encodeDataMQR);
 struct QRcode *QRcode_encodeString8bitMQR(const char *string, int version,
 				   QRecLevel level)
 {
-	/*
-	   if(string == NULL) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (string == NULL)
+		return NULL;
+
 	return QRcode_encodeDataReal((unsigned char *)string, strlen(string),
 				     version, level, 1);
 }
@@ -828,16 +806,12 @@ static struct QRcode_List *QRcode_encodeDataStructuredReal(int size,
 	struct QRcode_List *codes;
 	int ret;
 
-	/*
-	   if(version <= 0) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	   if(!eightbit && (hint != QR_MODE_8 && hint != QR_MODE_KANJI)) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (version <= 0)
+		return NULL;
+
+	if (!eightbit && (hint != QR_MODE_8 && hint != QR_MODE_KANJI))
+		return NULL;
+
 	input = QRinput_new2(version, level);
 	if (input == NULL)
 		return NULL;
@@ -872,12 +846,9 @@ struct QRcode_List *QRcode_encodeString8bitStructured(const char *string,
 						      int version,
 						      QRecLevel level)
 {
-	/*
-	   if(string == NULL) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (string == NULL)
+		return NULL;
+
 	return QRcode_encodeDataStructured(strlen(string),
 					   (unsigned char *)string, version,
 					   level);
@@ -889,12 +860,9 @@ struct QRcode_List
 			       QRecLevel level, QRencodeMode hint,
 			       int casesensitive)
 {
-	/*
-	   if(string == NULL) {
-	   errno = EINVAL;
-	   return NULL;
-	   }
-	 */
+	if (string == NULL)
+		return NULL;
+
 	return QRcode_encodeDataStructuredReal(strlen(string),
 					       (unsigned char *)string, version,
 					       level, 0, hint, casesensitive);
