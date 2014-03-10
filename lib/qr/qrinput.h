@@ -54,18 +54,17 @@ struct _QRinput {
 /******************************************************************************
  * Structured append input data
  *****************************************************************************/
-typedef struct _QRinput_InputList QRinput_InputList;
 
-struct _QRinput_InputList {
+struct QRinput_InputList {
 	QRinput *input;
-	QRinput_InputList *next;
+	struct QRinput_InputList *next;
 };
 
 struct _QRinput_Struct {
 	int size;					///< number of structured symbols
 	int parity;
-	QRinput_InputList *head;
-	QRinput_InputList *tail;
+	struct QRinput_InputList *head;
+	struct QRinput_InputList *tail;
 };
 
 /**
