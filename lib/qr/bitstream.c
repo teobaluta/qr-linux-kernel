@@ -50,8 +50,7 @@ static int BitStream_allocate(struct BitStream * bstream, int length)
 	if (data == NULL)
 		return -1;
 
-	if (bstream->data)
-		kfree(bstream->data);
+	kfree(bstream->data);
 
 	bstream->length = length;
 	bstream->data = data;
