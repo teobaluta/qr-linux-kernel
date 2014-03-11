@@ -32,8 +32,8 @@ int QRinput_isSplittableMode(enum QRencodeMode mode);
  *****************************************************************************/
 struct QRinput_List {
 	enum QRencodeMode mode;
-	int size;				///< Size of data chunk (byte).
-	unsigned char *data;	///< Data chunk.
+	int size;		/*  Size of data chunk (byte). */
+	unsigned char *data;	/* Data chunk. */
 	struct BitStream *bstream;
 	struct QRinput_List *next;
 };
@@ -71,7 +71,7 @@ struct QRinput_InputList {
  * Set of QRinput for structured symbols.
  */
 struct QRinput_Struct {
-	int size;					///< number of structured symbols
+	int size;		/* number of structured symbols */
 	int parity;
 	struct QRinput_InputList *head;
 	struct QRinput_InputList *tail;
@@ -100,7 +100,7 @@ extern const signed char QRinput_anTable[128];
  * @return value
  */
 #define QRinput_lookAnTable(__c__) \
-	((__c__ & 0x80)?-1:QRinput_anTable[(int)__c__])
+	((__c__ & 0x80) ? -1 : QRinput_anTable[(int)__c__])
 
 /**
  * Length of a standard mode indicator in bits.
@@ -124,7 +124,9 @@ extern struct BitStream *QRinput_getBitStream(struct QRinput *input);
 extern int QRinput_estimateBitStreamSize(struct QRinput *input, int version);
 extern int QRinput_splitEntry(struct QRinput_List *entry, int bytes);
 extern int QRinput_lengthOfCode(enum QRencodeMode mode, int version, int bits);
-extern int QRinput_insertStructuredAppendHeader(struct QRinput *input, int size, int index, unsigned char parity);
+extern int QRinput_insertStructuredAppendHeader(struct QRinput *input,
+						int size, int index,
+						unsigned char parity);
 #endif
 
 #endif /* __QRINPUT_H__ */
