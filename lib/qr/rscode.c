@@ -44,7 +44,8 @@ struct _RS {
 	data_t *alpha_to;	/* log lookup table */
 	data_t *index_of;	/* Antilog lookup table */
 	data_t *genpoly;	/* Generator polynomial */
-	int nroots;		/* Number of generator roots = number of parity symbols */
+	/* Number of generator roots = number of parity symbols */
+	int nroots;
 	int fcr;		/* First consecutive root, index form */
 	int prim;		/* Primitive element, index form */
 	int iprim;		/* prim-th root of 1, index form */
@@ -55,7 +56,7 @@ struct _RS {
 
 static RS *rslist = NULL;
 
-static inline int modnn(RS * rs, int x)
+static inline int modnn(RS *rs, int x)
 {
 	while (x >= rs->nn) {
 		x -= rs->nn;
@@ -64,7 +65,7 @@ static inline int modnn(RS * rs, int x)
 	return x;
 }
 
-#define MODNN(x) modnn(rs,x)
+#define MODNN(x) modnn(rs, x)
 
 #define MM (rs->mm)
 #define NN (rs->nn)
@@ -91,20 +92,17 @@ static RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
 {
 	RS *rs;
 
-/* Common code for intializing a Reed-Solomon control block (char or int symbols)
+/* Common code for intializing a Reed-Solomon control block
+ * (char or int symbols)
  * Copyright 2004 Phil Karn, KA9Q
- * May be used under the terms of the GNU Lesser General Public License (LGPL)
+ * May be used under the terms of the GNU General Public License (GPL)
  */
-//#undef NULL
-//#define NULL ((void *)0)
-
 	int i, j, sr, root, iprim;
 
 	rs = NULL;
 	/* Check parameter ranges */
-	if (symsize < 0 || symsize > (int)(8 * sizeof(data_t))) {
+	if (symsize < 0 || symsize > (int)(8 * sizeof(data_t)))
 		goto done;
-	}
 
 	if (fcr < 0 || fcr >= (1 << symsize))
 		goto done;
@@ -173,7 +171,8 @@ static RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
 	rs->gfpoly = gfpoly;
 
 	/* Find prim-th root of 1, used in decoding */
-	for (iprim = 1; (iprim % prim) != 0; iprim += rs->nn) ;
+	for (iprim = 1; (iprim % prim) != 0; iprim += rs->nn)
+		;
 	rs->iprim = iprim / prim;
 
 	rs->genpoly[0] = 1;
@@ -203,7 +202,7 @@ static RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
 	/* convert rs->genpoly[] to index form for quicker encoding */
 	for (i = 0; i <= nroots; i++)
 		rs->genpoly[i] = rs->index_of[rs->genpoly[i]];
-done:	;
+done:;
 
 	return rs;
 }
@@ -239,7 +238,7 @@ DONE:
 	return rs;
 }
 
-void free_rs_char(RS * rs)
+void free_rs_char(RS *rs)
 {
 	kfree(rs->alpha_to);
 	kfree(rs->index_of);
@@ -261,37 +260,40 @@ void free_rs_cache(void)
 }
 
 /* The guts of the Reed-Solomon encoder, meant to be #included
- * into a function body with the following typedefs, macros and variables supplied
- * according to the code parameters:
+ * into a function body with the following typedefs, macros and
+ * variables supplied according to the code parameters:
 
  * data_t - a typedef for the data symbol
  * data_t data[] - array of NN-NROOTS-PAD and type data_t to be encoded
- * data_t parity[] - an array of NROOTS and type data_t to be written with parity symbols
+ * data_t parity[] - an array of NROOTS and type data_t to be written
+ *                   with parity symbols
  * NROOTS - the number of roots in the RS code generator polynomial,
  *          which is the same as the number of parity symbols in a block.
-            Integer variable or literal.
-	    * 
+ *          Integer variable or literal.
+ *
  * NN - the total number of symbols in a RS block. Integer variable or literal.
  * PAD - the number of pad symbols in a block. Integer variable or literal.
  * ALPHA_TO - The address of an array of NN elements to convert Galois field
  *            elements in index (log) form to polynomial form. Read only.
  * INDEX_OF - The address of an array of NN elements to convert Galois field
  *            elements in polynomial form to index (log) form. Read only.
- * MODNN - a function to reduce its argument modulo NN. May be inline or a macro.
- * GENPOLY - an array of NROOTS+1 elements containing the generator polynomial in index form
+ * MODNN - a function to reduce its argument modulo NN. May be inline or a macro
+ * GENPOLY - an array of NROOTS+1 elements containing the generator polynomial
+ *           in index form
 
  * The memset() and memmove() functions are used. The appropriate header
- * file declaring these functions (usually <string.h>) must be included by the calling
- * program.
+ * file declaring these functions (usually <string.h>) must be included by
+ * the calling program.
 
  * Copyright 2004, Phil Karn, KA9Q
  * May be used under the terms of the GNU Lesser General Public License (LGPL)
  */
 
 #undef A0
-#define A0 (NN)			/* Special reserved value encoding zero in index form */
+/* Special reserved value encoding zero in index form */
+#define A0 (NN)
 
-void encode_rs_char(RS * rs, const data_t * data, data_t * parity)
+void encode_rs_char(RS *rs, const data_t *data, data_t *parity)
 {
 	int i, j;
 	data_t feedback;
@@ -302,8 +304,10 @@ void encode_rs_char(RS * rs, const data_t * data, data_t * parity)
 		feedback = INDEX_OF[data[i] ^ parity[0]];
 		if (feedback != A0) {	/* feedback term is non-zero */
 #ifdef UNNORMALIZED
-			/* This line is unnecessary when GENPOLY[NROOTS] is unity, as it must
-			 * always be for the polynomials constructed by init_rs()
+			/*
+			 * This line is unnecessary when GENPOLY[NROOTS]
+			 * is unity, as it must always be for the polynomials
+			 * constructed by init_rs()
 			 */
 			feedback = MODNN(NN - GENPOLY[NROOTS] + feedback);
 #endif
