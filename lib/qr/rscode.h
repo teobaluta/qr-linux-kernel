@@ -32,7 +32,7 @@
  */
 
 extern struct RS *init_rs(int symsize, int gfpoly, int fcr, int prim,
-		   int nroots, int pad);
+			  int nroots, int pad);
 extern void encode_rs_char(struct RS *rs, const unsigned char *data,
 			   unsigned char *parity);
 extern void free_rs_char(struct RS *rs);
