@@ -1,7 +1,7 @@
 /*
  * qrencode - QR Code encoder
  *
- * Micor QR Code specification in convenient format. 
+ * Micor QR Code specification in convenient format.
  * Copyright (C) 2006-2011 Kentaro Fukuchi <kentaro@fukuchi.org>
  *
  * This library is free software; you can redistribute it and/or modify
@@ -30,8 +30,8 @@
  *****************************************************************************/
 
 typedef struct {
-	int width;		//< Edge length of the symbol
-	int ec[4];		//< Number of ECC code (bytes)
+	int width;		/* Edge length of the symbol */
+	int ec[4];		/* Number of ECC code (bytes) */
 } MQRspec_Capacity;
 
 /**
@@ -39,11 +39,11 @@ typedef struct {
  * See Table 1 (pp.106) and Table 8 (pp.113) of Appendix 1, JIS X0510:2004.
  */
 static const MQRspec_Capacity mqrspecCapacity[MQRSPEC_VERSION_MAX + 1] = {
-	{0, {0, 0, 0, 0}},
-	{11, {2, 0, 0, 0}},
-	{13, {5, 6, 0, 0}},
-	{15, {6, 8, 0, 0}},
-	{17, {8, 10, 14, 0}}
+	{0, {0, 0, 0, 0} },
+	{11, {2, 0, 0, 0} },
+	{13, {5, 6, 0, 0} },
+	{15, {6, 8, 0, 0} },
+	{17, {8, 10, 14, 0} }
 };
 
 int MQRspec_getDataLengthBit(int version, enum QRecLevel level)
@@ -99,9 +99,8 @@ int MQRspec_maximumWords(enum QRencodeMode mode, int version)
 
 	bits = lengthTableBits[mode][version - 1];
 	words = (1 << bits) - 1;
-	if (mode == QR_MODE_KANJI) {
-		words *= 2;	// the number of bytes is required
-	}
+	if (mode == QR_MODE_KANJI)
+		words *= 2;	/* the number of bytes is required */
 
 	return words;
 }
@@ -181,9 +180,8 @@ static void putFinderPattern(unsigned char *frame, int width, int ox, int oy)
 	frame += oy * width + ox;
 	s = finder;
 	for (y = 0; y < 7; y++) {
-		for (x = 0; x < 7; x++) {
+		for (x = 0; x < 7; x++)
 			frame[x] = s[x];
-		}
 		frame += width;
 		s += 7;
 	}
@@ -238,9 +236,8 @@ unsigned char *MQRspec_newFrame(int version)
 	if (version < 1 || version > MQRSPEC_VERSION_MAX)
 		return NULL;
 
-	if (frames[version] == NULL) {
+	if (frames[version] == NULL)
 		frames[version] = MQRspec_createFrame(version);
-	}
 	if (frames[version] == NULL)
 		return NULL;
 
