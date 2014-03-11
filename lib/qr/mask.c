@@ -165,10 +165,8 @@ unsigned char *Mask_makeMask(int width, unsigned char *frame, int mask,
 {
 	unsigned char *masked;
 
-	if (mask < 0 || mask >= maskNum) {
-		//errno = EINVAL;
+	if (mask < 0 || mask >= maskNum)
 		return NULL;
-	}
 
 	masked = kmalloc(width * width, GFP_ATOMIC);
 	if (masked == NULL)
