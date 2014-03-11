@@ -1569,11 +1569,9 @@ asmlinkage int vprintk_emit(int facility, int level,
 		}
 	}
 
-#ifdef CONFIG_QR_OOPS 
-	// XXX
+#ifdef CONFIG_QR_OOPS
 	if (oops_in_progress)
 		qr_append(text);
-	// XXX
 #endif
 
 	if (level == -1)
