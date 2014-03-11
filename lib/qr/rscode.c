@@ -30,10 +30,6 @@
 
 #include "rscode.h"
 
-/* Stuff specific to the 8-bit symbol version of the general purpose RS codecs
- *
- */
-typedef unsigned char data_t;
 
 /**
  * Reed-Solomon codec control block
@@ -41,9 +37,9 @@ typedef unsigned char data_t;
 struct RS {
 	int mm;			/* Bits per symbol */
 	int nn;			/* Symbols per block (= (1<<mm)-1) */
-	data_t *alpha_to;	/* log lookup table */
-	data_t *index_of;	/* Antilog lookup table */
-	data_t *genpoly;	/* Generator polynomial */
+	unsigned char *alpha_to;	/* log lookup table */
+	unsigned char *index_of;	/* Antilog lookup table */
+	unsigned char *genpoly;	/* Generator polynomial */
 	/* Number of generator roots = number of parity symbols */
 	int nroots;
 	int fcr;		/* First consecutive root, index form */
@@ -54,7 +50,7 @@ struct RS {
 	struct RS *next;
 };
 
-static struct RS *rslist = NULL;
+static struct RS *rslist;
 
 static inline int modnn(struct RS *rs, int x)
 {
@@ -87,8 +83,8 @@ static inline int modnn(struct RS *rs, int x)
  * nroots = RS code generator polynomial degree (number of roots)
  * pad = padding bytes at front of shortened block
  */
-static struct RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
-			int pad)
+static struct RS *init_rs_char(int symsize, int gfpoly, int fcr,
+			       int prim, int nroots, int pad)
 {
 	struct RS *rs;
 
@@ -101,7 +97,7 @@ static struct RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int n
 
 	rs = NULL;
 	/* Check parameter ranges */
-	if (symsize < 0 || symsize > (int)(8 * sizeof(data_t)))
+	if (symsize < 0 || symsize > (int)(8 * sizeof(unsigned char)))
 		goto done;
 
 	if (fcr < 0 || fcr >= (1 << symsize))
@@ -121,13 +117,15 @@ static struct RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int n
 	rs->nn = (1 << symsize) - 1;
 	rs->pad = pad;
 
-	rs->alpha_to = kmalloc(sizeof(data_t) * (rs->nn + 1), GFP_ATOMIC);
+	rs->alpha_to = kmalloc(sizeof(unsigned char) * (rs->nn + 1),
+			       GFP_ATOMIC);
 	if (rs->alpha_to == NULL) {
 		kfree(rs);
 		rs = NULL;
 		goto done;
 	}
-	rs->index_of = kmalloc(sizeof(data_t) * (rs->nn + 1), GFP_ATOMIC);
+	rs->index_of = kmalloc(sizeof(unsigned char) * (rs->nn + 1),
+			       GFP_ATOMIC);
 	if (rs->index_of == NULL) {
 		kfree(rs->alpha_to);
 		kfree(rs);
@@ -157,7 +155,7 @@ static struct RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int n
 	}
 
 	/* Form RS code generator polynomial from its roots */
-	rs->genpoly = kmalloc(sizeof(data_t) * (nroots + 1), GFP_ATOMIC);
+	rs->genpoly = kmalloc(sizeof(unsigned char) * (nroots + 1), GFP_ATOMIC);
 	if (rs->genpoly == NULL) {
 		kfree(rs->alpha_to);
 		kfree(rs->index_of);
@@ -207,7 +205,8 @@ done:;
 	return rs;
 }
 
-struct RS *init_rs(int symsize, int gfpoly, int fcr, int prim, int nroots, int pad)
+struct RS *init_rs(int symsize, int gfpoly, int fcr, int prim,
+		   int nroots, int pad)
 {
 	struct RS *rs;
 
@@ -293,12 +292,12 @@ void free_rs_cache(void)
 /* Special reserved value encoding zero in index form */
 #define A0 (NN)
 
-void encode_rs_char(struct RS *rs, const data_t *data, data_t *parity)
+void encode_rs_char(struct RS *rs, const data_t *data, unsigned char *parity)
 {
 	int i, j;
-	data_t feedback;
+	unsigned char feedback;
 
-	memset(parity, 0, NROOTS * sizeof(data_t));
+	memset(parity, 0, NROOTS * sizeof(unsigned char));
 
 	for (i = 0; i < NN - NROOTS - PAD; i++) {
 		feedback = INDEX_OF[data[i] ^ parity[0]];
@@ -317,7 +316,8 @@ void encode_rs_char(struct RS *rs, const data_t *data, data_t *parity)
 					     (feedback + GENPOLY[NROOTS - j])];
 		}
 		/* Shift */
-		memmove(&parity[0], &parity[1], sizeof(data_t) * (NROOTS - 1));
+		memmove(&parity[0], &parity[1],
+			sizeof(unsigned char) * (NROOTS - 1));
 		if (feedback != A0)
 			parity[NROOTS - 1] =
 			    ALPHA_TO[MODNN(feedback + GENPOLY[0])];
