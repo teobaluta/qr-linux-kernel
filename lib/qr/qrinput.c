@@ -1090,7 +1090,7 @@ static int QRinput_lengthOfCode(enum QRencodeMode mode, int version, int bits)
 		size = chunks * 3;
 		if (remain >= 7)
 			size += 2;
-		else if (remain >= 4) {
+		else if (remain >= 4)
 			size += 1;
 		break;
 	case QR_MODE_AN:
