@@ -292,7 +292,8 @@ void free_rs_cache(void)
 /* Special reserved value encoding zero in index form */
 #define A0 (NN)
 
-void encode_rs_char(struct RS *rs, const data_t *data, unsigned char *parity)
+void encode_rs_char(struct RS *rs, const unsigned char *data,
+		    unsigned char *parity)
 {
 	int i, j;
 	unsigned char feedback;
