@@ -29,16 +29,17 @@
  * Version and capacity
  *****************************************************************************/
 
-typedef struct {
+struct MQRspec_Capacity {
 	int width;		/* Edge length of the symbol */
 	int ec[4];		/* Number of ECC code (bytes) */
-} MQRspec_Capacity;
+};
 
 /**
  * Table of the capacity of symbols
  * See Table 1 (pp.106) and Table 8 (pp.113) of Appendix 1, JIS X0510:2004.
  */
-static const MQRspec_Capacity mqrspecCapacity[MQRSPEC_VERSION_MAX + 1] = {
+static
+const struct MQRspec_Capacity mqrspecCapacity[MQRSPEC_VERSION_MAX + 1] = {
 	{0, {0, 0, 0, 0} },
 	{11, {2, 0, 0, 0} },
 	{13, {5, 6, 0, 0} },
