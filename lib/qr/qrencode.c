@@ -57,7 +57,7 @@ struct QRRawCode {
 
 static void RSblock_initBlock(struct RSblock *block, int dl,
 			      unsigned char *data,
-			      int el, unsigned char *ecc, RS *rs)
+			      int el, unsigned char *ecc, struct RS *rs)
 {
 	block->dataLength = dl;
 	block->data = data;
@@ -74,7 +74,7 @@ static int RSblock_init(struct RSblock *blocks, int spec[5],
 	int i;
 	struct RSblock *block;
 	unsigned char *dp, *ep;
-	RS *rs;
+	struct RS *rs;
 	int el, dl;
 
 	dl = QRspec_rsDataCodes1(spec);
@@ -214,7 +214,7 @@ static void MQRraw_free(struct MQRRawCode *raw);
 static struct MQRRawCode *MQRraw_new(struct QRinput *input)
 {
 	struct MQRRawCode *raw;
-	RS *rs;
+	struct RS *rs;
 
 	raw = kmalloc(sizeof(struct MQRRawCode), GFP_ATOMIC);
 	if (raw == NULL)
