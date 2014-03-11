@@ -1,7 +1,7 @@
 /*
  * qrencode - QR Code encoder
  *
- * QR Code specification in convenient format. 
+ * QR Code specification in convenient format.
  * Copyright (C) 2006-2011 Kentaro Fukuchi <kentaro@fukuchi.org>
  *
  * This library is free software; you can redistribute it and/or modify
@@ -177,5 +177,5 @@ extern void QRspec_clearCache(void);
 #define QRSPEC_MODEID_FNC1SECOND 9
 #define QRSPEC_MODEID_STRUCTURE  3
 #define QRSPEC_MODEID_TERMINATOR 0
- 
+
 #endif /* __QRSPEC_H__ */
