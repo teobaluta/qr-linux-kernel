@@ -52,15 +52,15 @@ static void MMask_writeFormatInformation(int version, int width,
 #define MASKMAKER(__exp__) \
 	int x, y;\
 \
-	for(y=0; y<width; y++) {\
-		for(x=0; x<width; x++) {\
-			if(*s & 0x80) {\
+	for (y = 0; y < width; y++) {\
+		for (x = 0; x < width; x++) {\
+			if (*s & 0x80) {\
 				*d = *s;\
-			} else {\
+			} else { \
 				*d = *s ^ ((__exp__) == 0);\
-			}\
+			} \
 			s++; d++;\
-		}\
+		} \
 	}
 
 static void Mask_mask0(int width, const unsigned char *s, unsigned char *d)
@@ -110,10 +110,8 @@ unsigned char *MMask_makeMask(int version, unsigned char *frame, int mask,
 	unsigned char *masked;
 	int width;
 
-	if (mask < 0 || mask >= maskNum) {
-		//errno = EINVAL;
+	if (mask < 0 || mask >= maskNum)
 		return NULL;
-	}
 
 	width = MQRspec_getWidth(version);
 	masked = kmalloc(width * width, GFP_ATOMIC);
@@ -133,9 +131,8 @@ static int MMask_evaluateSymbol(int width, unsigned char *frame)
 	int sum1 = 0, sum2 = 0;
 
 	p = frame + width * (width - 1);
-	for (x = 1; x < width; x++) {
+	for (x = 1; x < width; x++)
 		sum1 += (p[x] & 1);
-	}
 
 	p = frame + width * 2 - 1;
 	for (y = 1; y < width; y++) {
@@ -146,7 +143,8 @@ static int MMask_evaluateSymbol(int width, unsigned char *frame)
 	return (sum1 <= sum2) ? (sum1 * 16 + sum2) : (sum2 * 16 + sum1);
 }
 
-unsigned char *MMask_mask(int version, unsigned char *frame, enum QRecLevel level)
+unsigned char *MMask_mask(int version, unsigned char *frame,
+			  enum QRecLevel level)
 {
 	int i;
 	unsigned char *mask, *bestMask;
