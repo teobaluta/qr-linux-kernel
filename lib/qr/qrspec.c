@@ -36,18 +36,18 @@
  * Version and capacity
  *****************************************************************************/
 
-typedef struct {
+struct QRspec_Capacity {
 	int width;		/* Edge length of the symbol */
 	int words;		/* Data capacity (bytes) */
 	int remainder;		/* Remainder bit (bits) */
 	int ec[4];		/* Number of ECC code (bytes) */
-} QRspec_Capacity;
+};
 
 /**
  * Table of the capacity of symbols
  * See Table 1 (pp.13) and Table 12-16 (pp.30-36), JIS X0510:2004.
  */
-static const QRspec_Capacity qrspecCapacity[QRSPEC_VERSION_MAX + 1] = {
+static const struct QRspec_Capacity qrspecCapacity[QRSPEC_VERSION_MAX + 1] = {
 	{0, 0, 0, {0, 0, 0, 0} },
 	{21, 26, 0, {7, 10, 13, 17} },	/* 1 */
 	{25, 44, 7, {10, 16, 22, 28} },
