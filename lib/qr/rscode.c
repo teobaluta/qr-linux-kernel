@@ -38,7 +38,7 @@ typedef unsigned char data_t;
 /**
  * Reed-Solomon codec control block
  */
-struct _RS {
+struct RS {
 	int mm;			/* Bits per symbol */
 	int nn;			/* Symbols per block (= (1<<mm)-1) */
 	data_t *alpha_to;	/* log lookup table */
@@ -51,12 +51,12 @@ struct _RS {
 	int iprim;		/* prim-th root of 1, index form */
 	int pad;		/* Padding bytes in shortened block */
 	int gfpoly;
-	struct _RS *next;
+	struct RS *next;
 };
 
-static RS *rslist = NULL;
+static struct RS *rslist = NULL;
 
-static inline int modnn(RS *rs, int x)
+static inline int modnn(struct RS *rs, int x)
 {
 	while (x >= rs->nn) {
 		x -= rs->nn;
@@ -87,10 +87,10 @@ static inline int modnn(RS *rs, int x)
  * nroots = RS code generator polynomial degree (number of roots)
  * pad = padding bytes at front of shortened block
  */
-static RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
+static struct RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
 			int pad)
 {
-	RS *rs;
+	struct RS *rs;
 
 /* Common code for intializing a Reed-Solomon control block
  * (char or int symbols)
@@ -113,7 +113,7 @@ static RS *init_rs_char(int symsize, int gfpoly, int fcr, int prim, int nroots,
 	if (pad < 0 || pad >= ((1 << symsize) - 1 - nroots))
 		goto done;	/* Too much padding */
 
-	rs = kcalloc(1, sizeof(RS), GFP_ATOMIC);
+	rs = kcalloc(1, sizeof(struct RS), GFP_ATOMIC);
 	if (rs == NULL)
 		goto done;
 
@@ -207,9 +207,9 @@ done:;
 	return rs;
 }
 
-RS *init_rs(int symsize, int gfpoly, int fcr, int prim, int nroots, int pad)
+struct RS *init_rs(int symsize, int gfpoly, int fcr, int prim, int nroots, int pad)
 {
-	RS *rs;
+	struct RS *rs;
 
 	for (rs = rslist; rs != NULL; rs = rs->next) {
 		if (rs->pad != pad)
@@ -238,7 +238,7 @@ DONE:
 	return rs;
 }
 
-void free_rs_char(RS *rs)
+void free_rs_char(struct RS *rs)
 {
 	kfree(rs->alpha_to);
 	kfree(rs->index_of);
@@ -248,7 +248,7 @@ void free_rs_char(RS *rs)
 
 void free_rs_cache(void)
 {
-	RS *rs, *next;
+	struct RS *rs, *next;
 
 	rs = rslist;
 	while (rs != NULL) {
@@ -293,7 +293,7 @@ void free_rs_cache(void)
 /* Special reserved value encoding zero in index form */
 #define A0 (NN)
 
-void encode_rs_char(RS *rs, const data_t *data, data_t *parity)
+void encode_rs_char(struct RS *rs, const data_t *data, data_t *parity)
 {
 	int i, j;
 	data_t feedback;
