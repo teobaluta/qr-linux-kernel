@@ -1,5 +1,18 @@
 /*
- * TODO copyright
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  */
 #include <linux/print_oops.h>
@@ -20,7 +33,6 @@ static struct z_stream_s stream;
 #define QQQ_WHITE 0x0F
 #define QQQ_BLACK 0x00
 
-// XXX: optimizari?
 void qr_append(char *text) {
 	while (*text != '\0') {
 		if (buf_pos == QR_BUFSIZE - 1) {
@@ -95,8 +107,6 @@ error:
 
 void print_qr_err(void)
 {
-	printk("Buffer for QR; len %d:\n%s\n", buf_pos, qr_buffer);
-
 	ssize_t compr_len;
 	struct fb_info *info;
 	struct fb_fillrect rect;
@@ -107,7 +117,6 @@ void print_qr_err(void)
 	int is_black;
 
 	char compr_qr_buffer[buf_pos];
-#if 1
 	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
 
 	if (compr_len < 0) {
@@ -115,9 +124,7 @@ void print_qr_err(void)
 		return;
 	}
 
-#endif
 
-#if 1
 	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 
 	info = registered_fb[0];
@@ -163,6 +170,6 @@ void print_qr_err(void)
 	}
 
 	QRcode_free(qr);
-#endif
+	qr_compr_exit();
 }
 
