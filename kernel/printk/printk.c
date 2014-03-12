@@ -45,6 +45,7 @@
 #include <linux/poll.h>
 #include <linux/irq_work.h>
 #include <linux/utsname.h>
+#include <linux/print_oops.h>
 
 #include <asm/uaccess.h>
 
@@ -1076,7 +1077,6 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 		next_seq = log_next_seq;
 
 		len = 0;
-		prev = 0;
 		while (len >= 0 && seq < next_seq) {
 			struct printk_log *msg = log_from_idx(idx);
 			int textlen;
@@ -1569,6 +1569,11 @@ asmlinkage int vprintk_emit(int facility, int level,
 		}
 	}
 
+#ifdef CONFIG_QR_OOPS
+	if (oops_in_progress)
+		qr_append(text);
+#endif
+
 	if (level == -1)
 		level = default_message_loglevel;
 
@@ -1688,7 +1693,6 @@ asmlinkage int printk(const char *fmt, ...)
 	va_start(args, fmt);
 	r = vprintk_emit(0, -1, NULL, 0, fmt, args);
 	va_end(args);
-
 	return r;
 }
 EXPORT_SYMBOL(printk);
@@ -2788,7 +2792,6 @@ bool kmsg_dump_get_buffer(struct kmsg_dumper *dumper, bool syslog,
 	next_idx = idx;
 
 	l = 0;
-	prev = 0;
 	while (seq < dumper->next_seq) {
 		struct printk_log *msg = log_from_idx(idx);
 
