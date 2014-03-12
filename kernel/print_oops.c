@@ -10,9 +10,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  */
 #include <linux/print_oops.h>
@@ -23,7 +20,7 @@
 #include <linux/zlib.h>
 
 static char qr_buffer[QR_BUFSIZE];
-static int buf_pos = 0;
+static int buf_pos;
 
 #define COMPR_LEVEL 6
 
@@ -33,7 +30,8 @@ static struct z_stream_s stream;
 #define QQQ_WHITE 0x0F
 #define QQQ_BLACK 0x00
 
-void qr_append(char *text) {
+void qr_append(char *text)
+{
 	while (*text != '\0') {
 		if (buf_pos == QR_BUFSIZE - 1) {
 			qr_buffer[QR_BUFSIZE - 1] = '\0';
@@ -43,9 +41,10 @@ void qr_append(char *text) {
 		buf_pos++;
 		text++;
 	}
-} 
+}
 
-inline static int compute_w(struct fb_info *info, int qrw) {
+static inline int compute_w(struct fb_info *info, int qrw)
+{
 	int xres  = info->var.xres;
 	int yres  = info->var.yres;
 	int minxy = (xres < yres) ? xres : yres;
@@ -119,11 +118,8 @@ void print_qr_err(void)
 	char compr_qr_buffer[buf_pos];
 	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
 
-	if (compr_len < 0) {
-		printk(KERN_ALERT "compression error");
+	if (compr_len < 0)
 		return;
-	}
-
 
 	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 
@@ -163,7 +159,7 @@ void print_qr_err(void)
 		for (j = 0; j < qr->width; j++) {
 			rect.dx = (j + 1) * w;
 			rect.dy = (i + 1) * w;
-			is_black = qr->data[i * qr->width + j] & 1; 
+			is_black = qr->data[i * qr->width + j] & 1;
 			rect.color = is_black ? QQQ_BLACK : QQQ_WHITE;
 			cfb_fillrect(info, &rect);
 		}
@@ -171,5 +167,6 @@ void print_qr_err(void)
 
 	QRcode_free(qr);
 	qr_compr_exit();
+	buf_pos = 0;
 }
 
