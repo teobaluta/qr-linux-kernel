@@ -437,6 +437,7 @@ config SIGNATURE
 
 config QRLIB
 	bool "QR encoding library"
+	select ZLIB_DEFLATE
 	help
 	  QR encoding library
 
