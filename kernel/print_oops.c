@@ -126,6 +126,10 @@ void print_qr_err(void)
 	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 
 	info = registered_fb[0];
+	if (!info) {
+		printk(KERN_WARNING "Unable to get hand of a framebuffer!\n");
+		goto exit;
+	}
 	w = compute_w(info, qr->width);
 
 	rect.width = w;
@@ -167,6 +171,7 @@ void print_qr_err(void)
 		}
 	}
 
+exit:
 	QRcode_free(qr);
 	qr_compr_exit();
 	buf_pos = 0;
