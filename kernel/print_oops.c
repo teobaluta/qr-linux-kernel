@@ -37,15 +37,15 @@ static struct z_stream_s stream;
 
 void qr_append(char *text)
 {
-	while (*text != '\0') {
-		if (buf_pos == QR_BUFSIZE - 1) {
-			qr_buffer[QR_BUFSIZE - 1] = '\0';
-			return;
-		}
-		qr_buffer[buf_pos] = *text;
-		buf_pos++;
-		text++;
+	size_t len;
+
+	len = strlen(text);
+	if (len + buf_pos >= QR_BUFSIZE - 1) {
+		len = QR_BUFSIZE - 1 - buf_pos;
+		qr_buffer[QR_BUFSIZE - 1] = '\0';
 	}
+	memcpy(&qr_buffer[buf_pos], text, len);
+	buf_pos += len;
 }
 
 static inline int compute_w(struct fb_info *info, int qrw)
@@ -119,10 +119,10 @@ void print_qr_err(void)
 	int w;
 	int is_black;
 	char compr_qr_buffer[buf_pos];
-	
+
 	if (!qr_oops)
 		return;
-	
+
 	info = registered_fb[0];
 	if (!info) {
 		printk(KERN_WARNING "Unable to get hand of a framebuffer!\n");
