@@ -1,5 +1,8 @@
 /*
  *
+ * Copyright (C) 2014 Teodora Baluta <teobaluta@gmail.com>
+ * Copyright (C) 2014 Levente Kurusa <levex@linux.com>
+ *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,28 +22,30 @@
 #include <linux/fb.h>
 #include <linux/zlib.h>
 
+#define COMPR_LEVEL 6
+#define QQQ_WHITE 0x0F
+#define QQQ_BLACK 0x00
+
+static int qr_oops = 1;
+core_param(qr_oops, qr_oops, int, 0644); 
+
 static char qr_buffer[QR_BUFSIZE];
 static int buf_pos;
-
-#define COMPR_LEVEL 6
 
 static DEFINE_MUTEX(compr_mutex);
 static struct z_stream_s stream;
 
-#define QQQ_WHITE 0x0F
-#define QQQ_BLACK 0x00
-
 void qr_append(char *text)
 {
-	while (*text != '\0') {
-		if (buf_pos == QR_BUFSIZE - 1) {
-			qr_buffer[QR_BUFSIZE - 1] = '\0';
-			return;
-		}
-		qr_buffer[buf_pos] = *text;
-		buf_pos++;
-		text++;
+	size_t len;
+
+	len = strlen(text);
+	if (len + buf_pos >= QR_BUFSIZE - 1) {
+		len = QR_BUFSIZE - 1 - buf_pos;
+		qr_buffer[QR_BUFSIZE - 1] = '\0';
 	}
+	memcpy(&qr_buffer[buf_pos], text, len);
+	buf_pos += len;
 }
 
 
@@ -111,25 +116,25 @@ void print_qr_err(void)
 	struct fb_info *info;
 	struct fb_fillrect rect;
 	struct QRcode *qr;
-
 	int i, j;
 	int w;
 	int is_black;
-
 	char compr_qr_buffer[buf_pos];
-	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
 
-	if (compr_len < 0)
+	if (!qr_oops)
 		return;
-
-
-	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 
 	info = registered_fb[0];
 	if (!info) {
 		printk(KERN_WARNING "Unable to get hand of a framebuffer!\n");
-		goto exit;
+		return;
 	}
+
+	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
+	if (compr_len < 0)
+		return;
+
+	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 	w = compute_w(info, qr->width);
 
 	rect.width = w;
@@ -171,7 +176,6 @@ void print_qr_err(void)
 		}
 	}
 
-exit:
 	QRcode_free(qr);
 	qr_compr_exit();
 	buf_pos = 0;

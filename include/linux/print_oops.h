@@ -1,5 +1,5 @@
-#ifndef _ASM_X86_PRINT_OPS_H
-#define _ASM_X86_PRINT_OPS_H
+#ifndef _ASM_X86_PRINT_OOPS_H
+#define _ASM_X86_PRINT_OOPS_H
 
 #include <linux/module.h>
 
@@ -8,4 +8,4 @@
 void qr_append(char *text);
 void print_qr_err(void);
 
-#endif /* _PRINT_OPS_H */
+#endif /* _PRINT_OOPS_H */
