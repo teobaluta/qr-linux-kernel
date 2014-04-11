@@ -53,7 +53,25 @@ static inline int compute_w(struct fb_info *info, int qrw)
 	int xres  = info->var.xres;
 	int yres  = info->var.yres;
 	int minxy = (xres < yres) ? xres : yres;
-	return minxy / qrw / 3;
+	int ret = minxy / 3;
+
+	/* try to apply scaling */
+	ret *= qr_oops;
+	if (ret > xres || ret > yres) {
+		/* loop until we find the maximum we can use */
+		while (qr_oops > 1) {
+			ret /= qr_oops;
+			qr_oops--;
+			ret *= qr_oops;
+			if (ret <= xres && ret <= yres)
+				goto exit;
+		}
+		printk(KERN_WARNING "Was unable to find suitable scaling!\n");
+		return 0;
+	}
+
+exit:
+	return ret / qrw;
 }
 
 static int __init qr_compr_init(void)
