@@ -91,16 +91,14 @@ static void qr_compr_exit(void)
 
 static int qr_compress(void *in, void *out, size_t inlen, size_t outlen)
 {
-	int err, ret;
+	int ret;
 
-	ret = -EIO;
-
-	err = qr_compr_init();
-	if (err != 0)
+	ret = qr_compr_init();
+	if (ret != 0)
 		goto error;
 	mutex_lock(&compr_mutex);
-	err = zlib_deflateInit(&stream, COMPR_LEVEL);
-	if (err != Z_OK)
+	ret = zlib_deflateInit(&stream, COMPR_LEVEL);
+	if (ret != Z_OK)
 		goto error;
 
 	stream.next_in = in;
@@ -110,12 +108,12 @@ static int qr_compress(void *in, void *out, size_t inlen, size_t outlen)
 	stream.avail_out = outlen;
 	stream.total_out = 0;
 
-	err = zlib_deflate(&stream, Z_FINISH);
-	if (err != Z_STREAM_END)
+	ret = zlib_deflate(&stream, Z_FINISH);
+	if (ret != Z_STREAM_END)
 		goto error;
 
-	err = zlib_deflateEnd(&stream);
-	if (err != Z_OK)
+	ret = zlib_deflateEnd(&stream);
+	if (ret != Z_OK)
 		goto error;
 
 	if (stream.total_out >= stream.total_in)
