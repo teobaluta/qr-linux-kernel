@@ -146,8 +146,11 @@ void print_qr_err(void)
 	}
 
 	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
-	if (compr_len < 0)
+	if (compr_len < 0) {
+		printk(KERN_EMERG "Compression of QR code failed compr_len=%zd\n",
+			   compr_len);
 		return;
+	}
 
 	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 	if (!qr) {
