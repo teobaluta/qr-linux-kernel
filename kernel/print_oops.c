@@ -74,7 +74,7 @@ exit:
 	return ret / qrw;
 }
 
-static int __init qr_compr_init(void)
+static int qr_compr_init(void)
 {
 	size_t size = max(zlib_deflate_workspacesize(MAX_WBITS, MAX_MEM_LEVEL),
 			zlib_inflate_workspacesize());
