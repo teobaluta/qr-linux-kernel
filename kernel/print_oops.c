@@ -150,6 +150,10 @@ void print_qr_err(void)
 		return;
 
 	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
+	if (!qr) {
+		printk(KERN_EMERG "Failed to encode data as a QR code!\n");
+		return;
+	}
 	w = compute_w(info, qr->width);
 
 	rect.width = w;
