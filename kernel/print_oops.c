@@ -35,6 +35,8 @@ static int buf_pos;
 static DEFINE_MUTEX(compr_mutex);
 static struct z_stream_s stream;
 
+static int bug_in_code;
+
 void qr_append(char *text)
 {
 	size_t len;
@@ -139,6 +141,13 @@ void print_qr_err(void)
 	if (!qr_oops)
 		return;
 
+	if (bug_in_code) {
+		printk(KERN_EMERG "QR encoding triggers an error. Disabling.\n");
+		return;
+	}
+
+	bug_in_code ++;
+
 	info = registered_fb[0];
 	if (!info) {
 		printk(KERN_WARNING "Unable to get hand of a framebuffer!\n");
@@ -201,5 +210,6 @@ void print_qr_err(void)
 	QRcode_free(qr);
 	qr_compr_exit();
 	buf_pos = 0;
+	bug_in_code --;
 }
 
