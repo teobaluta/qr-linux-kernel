@@ -1,8 +1,7 @@
 /*
- * qrencode - QR Code encoder
+ * BitStream - storage of bits to which you can append
  *
- * Binary sequence class.
- * Copyright (C) 2006-2011 Kentaro Fukuchi <kentaro@fukuchi.org>
+ * Copyright (C) 2014 Levente Kurusa <levex@linux.com>
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,196 +17,180 @@
 
 #include <linux/kernel.h>
 #include <linux/slab.h>
-#include <linux/types.h>
 #include "bitstream.h"
+
+#define BITS_TO_BYTES(x) (((x) % 8 ) ? ((x) / 8 + 1) : ((x) / 8))
+
+u8 *__BitStream_alloc_data(int len, gfp_t gfp)
+{
+	return kzalloc(BITS_TO_BYTES(len), gfp);
+}
+
+struct BitStream *BitStream_allocate(int space, gfp_t gfp)
+{
+	struct BitStream *bstr;
+	u8 *bitmap;
+
+	/* XXX */
+	gfp = GFP_ATOMIC;
+
+	bstr = kzalloc(sizeof(*bstr), gfp);
+	if (!bstr)
+		return NULL;
+	
+	bstr->gfp = gfp;
+
+	if (space == 0)
+		return bstr;
+
+	bitmap = __BitStream_alloc_data(space, gfp);
+	if (!bitmap) {
+		kfree(bstr);
+		return NULL;
+	}
+
+	bstr->_data = bitmap;
+	bstr->space = space;
+	bstr->length = 0;
+	return bstr;
+}
 
 struct BitStream *BitStream_new(void)
 {
-	struct BitStream *bstream;
-
-	bstream = kmalloc(sizeof(struct BitStream), GFP_ATOMIC);
-	if (bstream == NULL)
-		return NULL;
-
-	bstream->length = 0;
-	bstream->data = NULL;
-
-	return bstream;
+	return BitStream_allocate(128, GFP_ATOMIC);
 }
 
-static int BitStream_allocate(struct BitStream *bstream, int length)
+void BitStream_free(struct BitStream *bstr)
+{
+	if (!bstr)
+		return;
+	if (bstr->_data)
+		kfree(bstr->_data);
+	kfree(bstr);
+}
+
+int BitStream_resize(struct BitStream *bstr, int nspace)
 {
 	unsigned char *data;
 
-	if (bstream == NULL)
-		return -1;
+	if (!bstr || nspace == 0)
+		return -EINVAL;
+	
+	if (bstr->length >= nspace)
+		return -ENOSPC;
+	
+	data = kzalloc(BITS_TO_BYTES(nspace), bstr->gfp);
+	if (!data)
+		return -ENOMEM;
+	
+	if (bstr->_data) {
+		memcpy(data, bstr->_data, BITS_TO_BYTES(bstr->length));
+		kfree(bstr->_data);
+	}
 
-	data = kmalloc(length, GFP_ATOMIC);
-	if (data == NULL)
-		return -1;
+	bstr->_data = data;
+	bstr->space = nspace;
+	return 0;
+}
 
-	kfree(bstream->data);
+int __BitStream_get_bit(struct BitStream *bstr, int no)
+{
+	if (!bstr || !bstr->_data)
+		return -EINVAL;
+	
+	if (no > bstr->length)
+		return -EINVAL;
 
-	bstream->length = length;
-	bstream->data = data;
+	return (bstr->_data[no / 8] & (1 << (no % 8))) ? 1 : 0;
+}
+
+int __BitStream_append_bit(struct BitStream *bstr, u8 bit)
+{
+	int rc;
+	
+	if (!bstr)
+		return -EINVAL;
+
+	if (!bstr->_data || bstr->length + 1 >= bstr->space) {
+		rc = BitStream_resize(bstr, bstr->space + 256);
+		if (rc)
+			return rc;
+	}
+	
+	if (bit != 0)
+		bstr->_data[bstr->length / 8] |= (1UL << (bstr->length % 8));
+	else {
+		bstr->_data[bstr->length / 8] &= ~(1UL << (bstr->length % 8));
+	}
+	bstr->length ++;
 
 	return 0;
 }
 
-static struct BitStream *BitStream_newFromNum(int bits, unsigned int num)
+int BitStream_appendBytes(struct BitStream *bstr, int bytes, u8 *data)
 {
-	unsigned int mask;
-	int i;
-	unsigned char *p;
-	struct BitStream *bstream;
-
-	bstream = BitStream_new();
-	if (bstream == NULL)
-		return NULL;
-
-	if (BitStream_allocate(bstream, bits)) {
-		BitStream_free(bstream);
-		return NULL;
-	}
-
-	p = bstream->data;
-	mask = 1 << (bits - 1);
-	for (i = 0; i < bits; i++) {
-		if (num & mask)
-			*p = 1;
-		else
-			*p = 0;
-		p++;
-		mask = mask >> 1;
-	}
-
-	return bstream;
-}
-
-static struct BitStream *BitStream_newFromBytes(int size, unsigned char *data)
-{
-	unsigned char mask;
+	int rc;
 	int i, j;
-	unsigned char *p;
-	struct BitStream *bstream;
+	unsigned char mask;
 
-	bstream = BitStream_new();
-	if (bstream == NULL)
-		return NULL;
-
-	if (BitStream_allocate(bstream, size * 8)) {
-		BitStream_free(bstream);
-		return NULL;
-	}
-
-	p = bstream->data;
-	for (i = 0; i < size; i++) {
+	for (i = 0; i < bytes; i++) {
 		mask = 0x80;
 		for (j = 0; j < 8; j++) {
-			if (data[i] & mask)
-				*p = 1;
-			else
-				*p = 0;
-			p++;
+			rc =__BitStream_append_bit(bstr, data[i] & mask);
+			if (rc)
+				return rc;
 			mask = mask >> 1;
 		}
 	}
 
-	return bstream;
-}
-
-int BitStream_append(struct BitStream *bstream, struct BitStream *arg)
-{
-	unsigned char *data;
-
-	if (arg == NULL)
-		return -1;
-
-	if (arg->length == 0)
-		return 0;
-
-	if (bstream->length == 0) {
-		if (BitStream_allocate(bstream, arg->length))
-			return -1;
-
-		memcpy(bstream->data, arg->data, arg->length);
-		return 0;
-	}
-
-	data = kmalloc(bstream->length + arg->length, GFP_ATOMIC);
-	if (data == NULL)
-		return -1;
-
-	memcpy(data, bstream->data, bstream->length);
-	memcpy(data + bstream->length, arg->data, arg->length);
-
-	kfree(bstream->data);
-	bstream->length += arg->length;
-	bstream->data = data;
-
 	return 0;
 }
 
-int BitStream_appendNum(struct BitStream *bstream, int bits, unsigned int num)
+int BitStream_appendNum(struct BitStream *bstr, int bits, int num)
 {
-	struct BitStream *b;
-	int ret;
-
-	if (bits == 0)
-		return 0;
-
-	b = BitStream_newFromNum(bits, num);
-	if (b == NULL)
-		return -1;
-
-	ret = BitStream_append(bstream, b);
-	BitStream_free(b);
-
-	return ret;
+	int rc;
+	int i;
+	unsigned int mask;
+	
+	mask = 1 << (bits - 1);
+	for (i = 0; i < bits; i++) {
+		rc = __BitStream_append_bit(bstr, num & mask);
+		if (rc)
+			return rc;
+		mask = mask >> 1;
+	}
+	
+	return 0;
 }
 
-int BitStream_appendBytes(struct BitStream *bstream, int size,
-			  unsigned char *data)
+int BitStream_append(struct BitStream *dst, struct BitStream *src)
 {
-	struct BitStream *b;
-	int ret;
+	int rc, i;
 
-	if (size == 0)
-		return 0;
-
-	b = BitStream_newFromBytes(size, data);
-	if (b == NULL)
-		return -1;
-
-	ret = BitStream_append(bstream, b);
-	BitStream_free(b);
-
-	return ret;
+	for (i = 0; i < src->length; i++) {
+		rc = __BitStream_append_bit(dst, __BitStream_get_bit(src, i));
+		if (rc)
+			return rc;
+	}
 }
 
-unsigned char *BitStream_toByte(struct BitStream *bstream)
+unsigned char *BitStream_toByte(struct BitStream *bstr)
 {
-	int i, j, size, bytes;
 	unsigned char *data, v;
-	unsigned char *p;
-
-	size = BitStream_size(bstream);
-	if (size == 0)
+	int i, j, size, bytes, p;
+	
+	data = kzalloc((bstr->length + 7) / 8, GFP_ATOMIC);
+	if (!data)
 		return NULL;
-
-	data = kmalloc((size + 7) / 8, GFP_ATOMIC);
-	if (data == NULL)
-		return NULL;
-
+	size = BitStream_size(bstr);
 	bytes = size / 8;
-
-	p = bstream->data;
+	p = 0;
 	for (i = 0; i < bytes; i++) {
 		v = 0;
 		for (j = 0; j < 8; j++) {
 			v = v << 1;
-			v |= *p;
-			p++;
+			v |= __BitStream_get_bit(bstr, p);
+			p ++;
 		}
 		data[i] = v;
 	}
@@ -215,19 +198,11 @@ unsigned char *BitStream_toByte(struct BitStream *bstream)
 		v = 0;
 		for (j = 0; j < (size & 7); j++) {
 			v = v << 1;
-			v |= *p;
-			p++;
+			v |= __BitStream_get_bit(bstr, p);
+			p ++;
 		}
 		data[bytes] = v;
 	}
-
+	
 	return data;
-}
-
-void BitStream_free(struct BitStream *bstream)
-{
-	if (bstream != NULL) {
-		kfree(bstream->data);
-		kfree(bstream);
-	}
 }
