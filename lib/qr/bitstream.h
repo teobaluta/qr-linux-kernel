@@ -1,8 +1,7 @@
 /*
- * qrencode - QR Code encoder
+ * BitStream - storage of bits to which you can append
  *
- * Binary sequence class.
- * Copyright (C) 2006-2011 Kentaro Fukuchi <kentaro@fukuchi.org>
+ * Copyright (C) 2014 Levente Kurusa <levex@linux.com>
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +14,30 @@
  * GNU General Public License for more details.
  *
  */
+#ifndef __BITSTREAM_H
+#define __BITSTREAM_H
 
-#ifndef __BITSTREAM_H__
-#define __BITSTREAM_H__
+#include <linux/kernel.h>
+#include <linux/gfp.h>
+#include <linux/spinlock.h>
 
 struct BitStream {
+	u8 *_data;
 	int length;
-	unsigned char *data;
+	int space;
+	spinlock_t lock;
+	gfp_t gfp;
 };
 
+extern struct BitStream *BitStream_allocate(int length, gfp_t gfp);
 extern struct BitStream *BitStream_new(void);
-extern int BitStream_append(struct BitStream *bstream, struct BitStream *arg);
-extern int BitStream_appendNum(struct BitStream *bstream, int bits,
-			       unsigned int num);
-extern int BitStream_appendBytes(struct BitStream *bstream, int size,
-				 unsigned char *data);
-#define BitStream_size(__bstream__) (__bstream__->length)
-extern unsigned char *BitStream_toByte(struct BitStream *bstream);
-extern void BitStream_free(struct BitStream *bstream);
+extern void BitStream_free(struct BitStream *bstr);
+extern int BitStream_appendBytes(struct BitStream *bstr, int len, u8 *data);
+extern int BitStream_appendNum(struct BitStream *bstr, int bits, int num);
+extern int BitStream_append(struct BitStream *dst, struct BitStream *src);
+extern unsigned char *BitStream_toByte(struct BitStream *bstr);
 
-#endif /* __BITSTREAM_H__ */
+#define BitStream_size(b) (b->length)
+
+
+#endif /* __BITSTREAM_H */
