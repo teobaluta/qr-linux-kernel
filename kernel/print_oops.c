@@ -35,6 +35,8 @@ static int buf_pos;
 static DEFINE_MUTEX(compr_mutex);
 static struct z_stream_s stream;
 
+static int bug_in_code;
+
 void qr_append(char *text)
 {
 	size_t len;
@@ -75,7 +77,7 @@ exit:
 	return ret / qrw;
 }
 
-static int __init qr_compr_init(void)
+static int qr_compr_init(void)
 {
 	size_t size = max(zlib_deflate_workspacesize(MAX_WBITS, MAX_MEM_LEVEL),
 			zlib_inflate_workspacesize());
@@ -92,16 +94,14 @@ static void qr_compr_exit(void)
 
 static int qr_compress(void *in, void *out, size_t inlen, size_t outlen)
 {
-	int err, ret;
+	int ret;
 
-	ret = -EIO;
-
-	err = qr_compr_init();
-	if (err != 0)
+	ret = qr_compr_init();
+	if (ret != 0)
 		goto error;
 	mutex_lock(&compr_mutex);
-	err = zlib_deflateInit(&stream, COMPR_LEVEL);
-	if (err != Z_OK)
+	ret = zlib_deflateInit(&stream, COMPR_LEVEL);
+	if (ret != Z_OK)
 		goto error;
 
 	stream.next_in = in;
@@ -111,12 +111,12 @@ static int qr_compress(void *in, void *out, size_t inlen, size_t outlen)
 	stream.avail_out = outlen;
 	stream.total_out = 0;
 
-	err = zlib_deflate(&stream, Z_FINISH);
-	if (err != Z_STREAM_END)
+	ret = zlib_deflate(&stream, Z_FINISH);
+	if (ret != Z_STREAM_END)
 		goto error;
 
-	err = zlib_deflateEnd(&stream);
-	if (err != Z_OK)
+	ret = zlib_deflateEnd(&stream);
+	if (ret != Z_OK)
 		goto error;
 
 	if (stream.total_out >= stream.total_in)
@@ -142,6 +142,13 @@ void print_qr_err(void)
 	if (!qr_oops)
 		return;
 
+	if (bug_in_code) {
+		printk(KERN_EMERG "QR encoding triggers an error. Disabling.\n");
+		return;
+	}
+
+	bug_in_code ++;
+
 	info = registered_fb[0];
 	if (!info) {
 		printk(KERN_WARNING "Unable to get hand of a framebuffer!\n");
@@ -149,10 +156,17 @@ void print_qr_err(void)
 	}
 
 	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
-	if (compr_len < 0)
+	if (compr_len < 0) {
+		printk(KERN_EMERG "Compression of QR code failed compr_len=%zd\n",
+			   compr_len);
 		return;
+	}
 
 	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
+	if (!qr) {
+		printk(KERN_EMERG "Failed to encode data as a QR code!\n");
+		return;
+	}
 	w = compute_w(info, qr->width);
 
 	rect.width = w;
@@ -197,5 +211,6 @@ void print_qr_err(void)
 	QRcode_free(qr);
 	qr_compr_exit();
 	buf_pos = 0;
+	bug_in_code --;
 }
 
