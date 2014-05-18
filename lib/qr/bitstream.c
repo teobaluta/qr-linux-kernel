@@ -49,7 +49,7 @@ struct BitStream *BitStream_allocate(int space, gfp_t gfp)
 		return NULL;
 	}
 
-	bstr->_data = bitmap;
+	bstr->data = bitmap;
 	bstr->space = space;
 	bstr->length = 0;
 	return bstr;
@@ -64,8 +64,8 @@ void BitStream_free(struct BitStream *bstr)
 {
 	if (!bstr)
 		return;
-	if (bstr->_data)
-		kfree(bstr->_data);
+	if (bstr->data)
+		kfree(bstr->data);
 	kfree(bstr);
 }
 
@@ -83,25 +83,25 @@ int BitStream_resize(struct BitStream *bstr, int nspace)
 	if (!data)
 		return -ENOMEM;
 	
-	if (bstr->_data) {
-		memcpy(data, bstr->_data, BITS_TO_BYTES(bstr->length));
-		kfree(bstr->_data);
+	if (bstr->data) {
+		memcpy(data, bstr->data, BITS_TO_BYTES(bstr->length));
+		kfree(bstr->data);
 	}
 
-	bstr->_data = data;
+	bstr->data = data;
 	bstr->space = nspace;
 	return 0;
 }
 
 int __BitStream_get_bit(struct BitStream *bstr, int no)
 {
-	if (!bstr || !bstr->_data)
+	if (!bstr || !bstr->data)
 		return -EINVAL;
 	
 	if (no > bstr->length)
 		return -EINVAL;
 
-	return (bstr->_data[no / 8] & (1 << (no % 8))) ? 1 : 0;
+	return (bstr->data[no / 8] & (1 << (no % 8))) ? 1 : 0;
 }
 
 int __BitStream_append_bit(struct BitStream *bstr, u8 bit)
@@ -111,16 +111,16 @@ int __BitStream_append_bit(struct BitStream *bstr, u8 bit)
 	if (!bstr)
 		return -EINVAL;
 
-	if (!bstr->_data || bstr->length + 1 >= bstr->space) {
+	if (!bstr->data || bstr->length + 1 >= bstr->space) {
 		rc = BitStream_resize(bstr, bstr->space + 256);
 		if (rc)
 			return rc;
 	}
 	
 	if (bit != 0)
-		bstr->_data[bstr->length / 8] |= (1UL << (bstr->length % 8));
+		bstr->data[bstr->length / 8] |= (1UL << (bstr->length % 8));
 	else {
-		bstr->_data[bstr->length / 8] &= ~(1UL << (bstr->length % 8));
+		bstr->data[bstr->length / 8] &= ~(1UL << (bstr->length % 8));
 	}
 	bstr->length ++;
 
