@@ -144,6 +144,7 @@ void print_qr_err(void)
 
 	if (bug_in_code) {
 		printk(KERN_EMERG "QR encoding triggers an error. Disabling.\n");
+		qr_oops = 0;
 		return;
 	}
 
