@@ -179,7 +179,7 @@ unsigned char *BitStream_toByte(struct BitStream *bstr)
 	unsigned char *data, v;
 	int i, j, size, bytes, p;
 	
-	data = kzalloc((bstr->length + 7) / 8, GFP_ATOMIC);
+	data = kzalloc((bstr->length + 7) / 8, bstr->gfp);
 	if (!data)
 		return NULL;
 	size = BitStream_size(bstr);
