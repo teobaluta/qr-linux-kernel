@@ -25,7 +25,6 @@ struct BitStream {
 	u8 *_data;
 	int length;
 	int space;
-	spinlock_t lock;
 	gfp_t gfp;
 };
 
