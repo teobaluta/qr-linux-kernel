@@ -22,7 +22,7 @@
 #include <linux/spinlock.h>
 
 struct BitStream {
-	u8 *_data;
+	u8 *data;
 	int length;
 	int space;
 	gfp_t gfp;
