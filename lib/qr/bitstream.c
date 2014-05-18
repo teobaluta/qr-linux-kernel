@@ -172,6 +172,8 @@ int BitStream_append(struct BitStream *dst, struct BitStream *src)
 		if (rc)
 			return rc;
 	}
+	
+	return 0;
 }
 
 unsigned char *BitStream_toByte(struct BitStream *bstr)
