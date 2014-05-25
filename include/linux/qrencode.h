@@ -128,11 +128,6 @@ enum QRecLevel {
  */
 #define QRSPEC_VERSION_MAX 40
 
-/**
- * Maximum version (size) of QR-code symbol.
- */
-#define MQRSPEC_VERSION_MAX 4
-
 
 /******************************************************************************
  * Input data (qrinput.c)
@@ -156,18 +151,6 @@ extern struct QRinput *QRinput_new(void);
  * @throw EINVAL invalid arguments.
  */
 extern struct QRinput *QRinput_new2(int version, enum QRecLevel level);
-
-/**
- * Instantiate an input data object. Object's Micro QR Code flag is set.
- * Unlike with full-sized QR Code, version number must be specified (>0).
- * @param version version number (1--4).
- * @param level Error correction level.
- * @return an input object (initialized). On error, NULL is returned and errno
- *         is set to indicate the error.
- * @throw ENOMEM unable to allocate memory for input objects.
- * @throw EINVAL invalid arguments.
- */
-extern struct QRinput *QRinput_newMQR(int version, enum QRecLevel level);
 
 /**
  * Append data to an input object.
@@ -427,22 +410,6 @@ extern struct QRcode
 			 enum QRecLevel level);
 
 /**
- * Micro QR Code version of QRcode_encodeString().
- * @warning This function is THREAD UNSAFE when pthread is disabled.
- */
-extern struct QRcode
-*QRcode_encodeStringMQR(const char *string, int version, enum QRecLevel level,
-			enum QRencodeMode hint, int casesensitive);
-
-/**
- * Micro QR Code version of QRcode_encodeString8bit().
- * @warning This function is THREAD UNSAFE when pthread is disabled.
- */
-extern struct QRcode
-*QRcode_encodeString8bitMQR(const char *string, int version,
-			    enum QRecLevel level);
-
-/**
  * Encode byte stream (may include '\0') in 8-bit mode.
  * @warning This function is THREAD UNSAFE when pthread is disabled.
  * @param size size of the input data.
@@ -457,14 +424,6 @@ extern struct QRcode
 extern struct QRcode
 *QRcode_encodeData(int size, const unsigned char *data,
 		   int version, enum QRecLevel level);
-
-/**
- * Micro QR Code version of QRcode_encodeData().
- * @warning This function is THREAD UNSAFE when pthread is disabled.
- */
-extern struct QRcode
-*QRcode_encodeDataMQR(int size, const unsigned char *data,
-		      int version, enum QRecLevel level);
 
 /**
  * Free the instance of QRcode class.
