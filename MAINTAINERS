@@ -7048,6 +7048,15 @@ F:	fs/qnx4/
 F:	include/uapi/linux/qnx4_fs.h
 F:	include/uapi/linux/qnxtypes.h
 
+QR ENCODING LIBRARY
+M:	Teodora Baluta <teobaluta@gmail.com>
+M:	Levente Kurusa <levex@linux.com>
+S:	Maintained
+F:	lib/qr/
+F:	kernel/print_oops.c
+F:	include/linux/print_oops.h
+F:	include/linux/qrencode.h
+
 QT1010 MEDIA DRIVER
 M:	Antti Palosaari <crope@iki.fi>
 L:	linux-media@vger.kernel.org
