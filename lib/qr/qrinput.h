@@ -50,7 +50,6 @@ struct QRinput {
 	enum QRecLevel level;
 	struct QRinput_List *head;
 	struct QRinput_List *tail;
-	int mqr;
 	int fnc1;
 	unsigned char appid;
 };
