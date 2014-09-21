@@ -17,7 +17,8 @@ config PRINTK_TIME
 
 config QR_OOPS
 	bool "Display QR barcode for Oops messages for debug"
-	depends on PRINTK && QRLIB
+	depends on PRINTK
+	select QRLIB
 	help
 		Selecting this option makes printk() calls to accumulate
 		the Oops messages in a buffer, compresses the message
