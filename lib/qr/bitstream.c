@@ -72,7 +72,7 @@ int BitStream_resize(struct BitStream *bstr, int nspace)
 {
 	unsigned char *data;
 
-	if (!bstr || nspace == 0)
+	if (nspace == 0)
 		return -EINVAL;
 
 	if (bstr->length >= nspace)
@@ -94,11 +94,8 @@ int BitStream_resize(struct BitStream *bstr, int nspace)
 
 int __BitStream_get_bit(struct BitStream *bstr, int no)
 {
-	if (!bstr || !bstr->data)
-		return -EINVAL;
-
-	if (no > bstr->length)
-		return -EINVAL;
+	if (WARN_ON(no > bstr->length))
+		return 0;
 
 	return (bstr->data[no / 8] & (1 << (no % 8))) ? 1 : 0;
 }
@@ -106,9 +103,6 @@ int __BitStream_get_bit(struct BitStream *bstr, int no)
 int __BitStream_append_bit(struct BitStream *bstr, u8 bit)
 {
 	int rc;
-
-	if (!bstr)
-		return -EINVAL;
 
 	if (!bstr->data || bstr->length + 1 >= bstr->space) {
 		rc = BitStream_resize(bstr, bstr->space + 256);
