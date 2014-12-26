@@ -37,6 +37,8 @@ static struct z_stream_s stream;
 
 static int bug_in_code;
 
+static volatile int qr_last_size;
+
 void qr_append(char *text)
 {
 	size_t len;
@@ -172,6 +174,24 @@ void print_qr_err(void)
 	rect.width = w;
 	rect.height = w;
 	rect.rop = 0;
+
+	if (qr_last_size && qr_last_size != w) {
+		/*
+		 * If we had a QR code previously, chances are that our
+		 * corners might collide and some scanners might not be
+		 * able to decode the new QR code properly. Prevent this
+		 * by overwriting the previous region with black
+		 */
+		struct fb_fillrect cl;
+		cl.width = qr_last_size;
+		cl.height = qr_last_size;
+		cl.rop = 0;
+		cl.color = QQQ_BLACK;
+		cl.dx = 0;
+		cl.dy = 0;
+		cfb_fillrect(info, &cl);
+	}
+	qr_last_size = w * (qr->width + 3);
 
 	/* Print borders: */
 	rect.color = QQQ_WHITE;
