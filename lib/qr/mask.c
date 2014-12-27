@@ -142,21 +142,6 @@ static MaskMaker *maskMakers[maskNum] = {
 	Mask_mask4, Mask_mask5, Mask_mask6, Mask_mask7
 };
 
-#ifdef WITH_TESTS
-unsigned char *Mask_makeMaskedFrame(int width, unsigned char *frame, int mask)
-{
-	unsigned char *masked;
-
-	masked = kmalloc(width * width, GFP_ATOMIC);
-	if (masked == NULL)
-		return NULL;
-
-	maskMakers[mask] (width, frame, masked);
-
-	return masked;
-}
-#endif
-
 unsigned char *Mask_makeMask(int width, unsigned char *frame, int mask,
 			     enum QRecLevel level)
 {
