@@ -67,7 +67,8 @@ static inline int compute_w(struct fb_info *info, int qrw)
 			ret /= qr_oops;
 			qr_oops--;
 			ret *= qr_oops;
-			if (ret <= xres && ret <= yres)
+			/* Leave some spaces around the edges FIXME: correct? */
+			if (ret <= (minxy - qr_oops))
 				goto exit;
 		}
 		printk(KERN_WARNING "Was unable to find suitable scaling!\n");
