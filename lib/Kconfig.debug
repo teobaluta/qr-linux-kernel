@@ -22,6 +22,8 @@ config QR_OOPS
 	select ZLIB_DEFLATE
 	select ZLIB_INFLATE
 	select FB_CFB_FILLRECT
+	select REED_SOLOMON
+	select REED_SOLOMON_ENC8
 	help
 		Selecting this option makes printk() calls to accumulate
 		the Oops messages in a buffer, compresses the message

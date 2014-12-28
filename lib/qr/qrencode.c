@@ -19,12 +19,13 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/types.h>
+#include <linux/qrencode.h>
+#include <linux/rslib.h>
 
 #include "qrencode.h"
 #include "qrspec.h"
 #include "bitstream.h"
 #include "qrinput.h"
-#include "rscode.h"
 #include "split.h"
 #include "mask.h"
 #include "mmask.h"
@@ -54,14 +55,21 @@ struct QRRawCode {
 
 static void RSblock_initBlock(struct RSblock *block, int dl,
 			      unsigned char *data,
-			      int el, unsigned char *ecc, struct RS *rs)
+			      int el, unsigned char *ecc, struct rs_control *rs)
 {
+	int i;
+	uint16_t par[el];
+
 	block->dataLength = dl;
 	block->data = data;
 	block->eccLength = el;
 	block->ecc = ecc;
 
-	encode_rs_char(rs, data, ecc);
+	memset(par, 0, sizeof(par));
+	encode_rs8(rs, data, dl, par, 0x0000);
+
+	for (i = 0; i < el; i++)
+		ecc[i] = par[i];
 }
 
 static int RSblock_init(struct RSblock *blocks, int spec[5],
@@ -71,12 +79,12 @@ static int RSblock_init(struct RSblock *blocks, int spec[5],
 	int i;
 	struct RSblock *block;
 	unsigned char *dp, *ep;
-	struct RS *rs;
+	struct rs_control *rs;
 	int el, dl;
 
 	dl = QRspec_rsDataCodes1(spec);
 	el = QRspec_rsEccCodes1(spec);
-	rs = init_rs(8, 0x11d, 0, 1, el, 255 - dl - el);
+	rs = init_rs(8, 0x11d, 0, 1, el);
 	if (rs == NULL)
 		return -1;
 
@@ -95,7 +103,7 @@ static int RSblock_init(struct RSblock *blocks, int spec[5],
 
 	dl = QRspec_rsDataCodes2(spec);
 	el = QRspec_rsEccCodes2(spec);
-	rs = init_rs(8, 0x11d, 0, 1, el, 255 - dl - el);
+	rs = init_rs(8, 0x11d, 0, 1, el);
 	if (rs == NULL)
 		return -1;
 	for (i = 0; i < QRspec_rsBlockNum2(spec); i++) {
