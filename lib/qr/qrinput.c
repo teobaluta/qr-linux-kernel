@@ -31,7 +31,7 @@
  *****************************************************************************/
 int QRinput_isSplittableMode(enum QRencodeMode mode)
 {
-	return mode >= QR_MODE_NUM && mode <= QR_MODE_KANJI;
+	return mode >= QR_MODE_NUM;
 }
 
 /******************************************************************************
@@ -579,97 +579,6 @@ ABORT:
 }
 
 /******************************************************************************
- * Kanji data
- *****************************************************************************/
-
-/**
- * Estimates the length of the encoded bit stream of kanji data.
- * @param size
- * @return number of bits
- */
-int QRinput_estimateBitsModeKanji(int size)
-{
-	return (size / 2) * 13;
-}
-
-/**
- * Check the input data.
- * @param size
- * @param data
- * @return result
- */
-static int QRinput_checkModeKanji(int size, const unsigned char *data)
-{
-	int i;
-	unsigned int val;
-
-	if (size & 1)
-		return -1;
-
-	for (i = 0; i < size; i += 2) {
-		val = ((unsigned int)data[i] << 8) | data[i + 1];
-		if (val < 0x8140 || (val > 0x9ffc && val < 0xe040)
-		    || val > 0xebbf) {
-			return -1;
-		}
-	}
-
-	return 0;
-}
-
-/**
- * Convert the kanji data to a bit stream.
- * @param entry
- * @retval 0 success
- * @retval -1 an error occurred and errno is set to indeicate the error.
- *            See Execptions for the details.
- * @throw ENOMEM unable to allocate memory.
- * @throw EINVAL invalid version.
- */
-static int QRinput_encodeModeKanji(struct QRinput_List *entry, int version)
-{
-	int ret, i;
-	unsigned int val, h;
-
-	entry->bstream = BitStream_new();
-	if (entry->bstream == NULL)
-		return -1;
-
-	ret =
-	    BitStream_appendNum(entry->bstream, 4, QRSPEC_MODEID_KANJI);
-	if (ret < 0)
-		goto ABORT;
-	ret =
-	    BitStream_appendNum(entry->bstream,
-				QRspec_lengthIndicator(QR_MODE_KANJI,
-						       version),
-				entry->size / 2);
-	if (ret < 0)
-		goto ABORT;
-
-	for (i = 0; i < entry->size; i += 2) {
-		val = ((unsigned int)entry->data[i] << 8) | entry->data[i + 1];
-		if (val <= 0x9ffc)
-			val -= 0x8140;
-		else
-			val -= 0xc140;
-
-		h = (val >> 8) * 0xc0;
-		val = (val & 0xff) + h;
-
-		ret = BitStream_appendNum(entry->bstream, 13, val);
-		if (ret < 0)
-			goto ABORT;
-	}
-
-	return 0;
-ABORT:
-	BitStream_free(entry->bstream);
-	entry->bstream = NULL;
-	return -1;
-}
-
-/******************************************************************************
  * Structured Symbol
  *****************************************************************************/
 
@@ -829,8 +738,6 @@ int QRinput_check(enum QRencodeMode mode, int size, const unsigned char *data)
 		return QRinput_checkModeNum(size, (const char *)data);
 	case QR_MODE_AN:
 		return QRinput_checkModeAn(size, (const char *)data);
-	case QR_MODE_KANJI:
-		return QRinput_checkModeKanji(size, data);
 	case QR_MODE_8:
 		return 0;
 	case QR_MODE_STRUCTURE:
@@ -877,9 +784,6 @@ static int QRinput_estimateBitStreamSizeOfEntry(struct QRinput_List *entry,
 		break;
 	case QR_MODE_8:
 		bits = QRinput_estimateBitsMode8(entry->size);
-		break;
-	case QR_MODE_KANJI:
-		bits = QRinput_estimateBitsModeKanji(entry->size);
 		break;
 	case QR_MODE_STRUCTURE:
 		return STRUCTURE_HEADER_SIZE;
@@ -980,9 +884,6 @@ static int QRinput_lengthOfCode(enum QRencodeMode mode, int version, int bits)
 	case QR_MODE_8:
 		size = payload / 8;
 		break;
-	case QR_MODE_KANJI:
-		size = (payload / 13) * 2;
-		break;
 	case QR_MODE_STRUCTURE:
 		size = payload / 8;
 		break;
@@ -1057,9 +958,6 @@ static int QRinput_encodeBitStream(struct QRinput_List *entry, int version)
 			break;
 		case QR_MODE_8:
 			ret = QRinput_encodeMode8(entry, version);
-			break;
-		case QR_MODE_KANJI:
-			ret = QRinput_encodeModeKanji(entry, version);
 			break;
 		case QR_MODE_STRUCTURE:
 			ret = QRinput_encodeModeStructure(entry);

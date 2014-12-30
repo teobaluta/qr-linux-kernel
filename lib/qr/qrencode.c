@@ -400,9 +400,8 @@ static struct QRcode *QRcode_encodeStringReal(const char *string, int version,
 	if (string == NULL)
 		return NULL;
 
-	if (hint != QR_MODE_8 && hint != QR_MODE_KANJI)
+	if (hint != QR_MODE_8)
 		return NULL;
-
 
 	input = QRinput_new2(version, level);
 
@@ -590,7 +589,7 @@ static struct QRcode_List *QRcode_encodeDataStructuredReal(int size,
 	if (version <= 0)
 		return NULL;
 
-	if (!eightbit && (hint != QR_MODE_8 && hint != QR_MODE_KANJI))
+	if (!eightbit && hint != QR_MODE_8)
 		return NULL;
 
 	input = QRinput_new2(version, level);

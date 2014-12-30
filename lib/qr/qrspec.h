@@ -169,7 +169,6 @@ extern void QRspec_clearCache(void);
 #define QRSPEC_MODEID_NUM        1
 #define QRSPEC_MODEID_AN         2
 #define QRSPEC_MODEID_8          4
-#define QRSPEC_MODEID_KANJI      8
 #define QRSPEC_MODEID_FNC1FIRST  5
 #define QRSPEC_MODEID_FNC1SECOND 9
 #define QRSPEC_MODEID_STRUCTURE  3
