@@ -34,15 +34,6 @@
 #define isdigit(__c__) ((unsigned char)((signed char)(__c__) - '0') < 10)
 #define isalnum(__c__) (QRinput_lookAnTable(__c__) >= 0)
 
-char *strdup(const char *s)
-{
-	size_t len = strlen(s) + 1;
-	void *new = kmalloc(len, GFP_ATOMIC);
-	if (new == NULL)
-		return NULL;
-	return (char *)memcpy(new, s, len);
-}
-
 static enum QRencodeMode Split_identifyMode(const char *string,
 					    enum QRencodeMode hint)
 {
@@ -253,7 +244,7 @@ static char *dupAndToUpper(const char *str, enum QRencodeMode hint)
 	char *newstr, *p;
 	enum QRencodeMode mode;
 
-	newstr = strdup(str);
+	newstr = kstrdup(str, GFP_ATOMIC);
 	if (newstr == NULL)
 		return NULL;
 

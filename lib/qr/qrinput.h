@@ -114,15 +114,4 @@ extern const signed char QRinput_anTable[128];
  */
 #define MAX_STRUCTURED_SYMBOLS 16
 
-#ifdef WITH_TESTS
-extern struct BitStream *QRinput_mergeBitStream(struct QRinput *input);
-extern struct BitStream *QRinput_getBitStream(struct QRinput *input);
-extern int QRinput_estimateBitStreamSize(struct QRinput *input, int version);
-extern int QRinput_splitEntry(struct QRinput_List *entry, int bytes);
-extern int QRinput_lengthOfCode(enum QRencodeMode mode, int version, int bits);
-extern int QRinput_insertStructuredAppendHeader(struct QRinput *input,
-						int size, int index,
-						unsigned char parity);
-#endif
-
 #endif /* __QRINPUT_H__ */

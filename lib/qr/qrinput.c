@@ -383,8 +383,8 @@ static int QRinput_encodeModeNum(struct QRinput_List *entry, int version)
 		goto ABORT;
 
 	ret = BitStream_appendNum(entry->bstream,
-	   			  QRspec_lengthIndicator(QR_MODE_NUM,
-				  version), entry->size);
+				  QRspec_lengthIndicator(QR_MODE_NUM, version),
+				  entry->size);
 	if (ret < 0)
 		goto ABORT;
 
@@ -1148,7 +1148,7 @@ static struct BitStream *QRinput_mergeBitStream(struct QRinput *input)
 
 	if (input->fnc1) {
 		if (QRinput_insertFNC1Header(input) < 0)
-		return NULL;
+			return NULL;
 	}
 	if (QRinput_convertData(input) < 0)
 		return NULL;
