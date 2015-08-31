@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- *
+ *error: implicit declaration of function ‘vmalloc’
  */
 #include <linux/print_oops.h>
 #include <linux/kdebug.h>
@@ -21,13 +21,14 @@
 #include <linux/qrencode.h>
 #include <linux/fb.h>
 #include <linux/zlib.h>
+#include <linux/vmalloc.h>
 
 #define COMPR_LEVEL 6
 #define QQQ_WHITE 0x0F
 #define QQQ_BLACK 0x00
 
 static int qr_oops = 1;
-core_param(qr_oops, qr_oops, int, 0644); 
+core_param(qr_oops, qr_oops, int, 0644);
 
 static char qr_buffer[QR_BUFSIZE];
 static int buf_pos;
@@ -234,4 +235,3 @@ void print_qr_err(void)
 	buf_pos = 0;
 	bug_in_code --;
 }
-

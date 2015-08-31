@@ -1907,7 +1907,7 @@ asmlinkage __visible int printk(const char *fmt, ...)
 #ifdef CONFIG_KGDB_KDB
 	if (unlikely(kdb_trap_printk)) {
 		va_start(args, fmt);
-		r = vkdb_printf(fmt, args);
+		r = vkdb_printf(KDB_MSGSRC_PRINTK, fmt, args);
 		va_end(args);
 		return r;
 	}
