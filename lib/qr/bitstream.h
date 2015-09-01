@@ -1,5 +1,5 @@
 /*
- * BitStream - storage of bits to which you can append
+ * bit_stream - storage of bits to which you can append
  *
  * Copyright (C) 2014 Levente Kurusa <levex@linux.com>
  *
@@ -21,22 +21,21 @@
 #include <linux/gfp.h>
 #include <linux/spinlock.h>
 
-struct BitStream {
+struct bit_stream {
 	u8 *data;
 	int length;
 	int space;
 	gfp_t gfp;
 };
 
-extern struct BitStream *BitStream_allocate(int length, gfp_t gfp);
-extern struct BitStream *BitStream_new(void);
-extern void BitStream_free(struct BitStream *bstr);
-extern int BitStream_appendBytes(struct BitStream *bstr, int len, u8 *data);
-extern int BitStream_appendNum(struct BitStream *bstr, int bits, int num);
-extern int BitStream_append(struct BitStream *dst, struct BitStream *src);
-extern unsigned char *BitStream_toByte(struct BitStream *bstr);
+struct bit_stream *bit_stream_allocate(int length, gfp_t gfp);
+struct bit_stream *bit_stream_new(void);
+void bit_stream_free(struct bit_stream *bstr);
+int bit_stream_append_bytes(struct bit_stream *bstr, int len, u8 *data);
+int bit_stream_append_num(struct bit_stream *bstr, int bits, int num);
+int bit_stream_append(struct bit_stream *dst, struct bit_stream *src);
+unsigned char *bit_stream_to_byte(struct bit_stream *bstr);
 
-#define BitStream_size(b) (b->length)
-
+#define bit_stream_size(b) (b->length)
 
 #endif /* __BITSTREAM_H */

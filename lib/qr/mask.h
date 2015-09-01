@@ -19,9 +19,10 @@
 #ifndef __MASK_H__
 #define __MASK_H__
 
-extern unsigned char *Mask_makeMask(int width, unsigned char *frame,
-				    int mask, enum QRecLevel level);
-extern unsigned char *Mask_mask(int width, unsigned char *frame,
-				enum QRecLevel level);
+unsigned char *mask_make_mask(int width, unsigned char *frame,
+			      int mask, enum qrec_level level);
+
+unsigned char *mask_mask(int width, unsigned char *frame,
+			 enum qrec_level level);
 
 #endif /* __MASK_H__ */

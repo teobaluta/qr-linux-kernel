@@ -1,5 +1,5 @@
 /*
- * BitStream - storage of bits to which you can append
+ * bit_stream - storage of bits to which you can append
  *
  * Copyright (C) 2014 Levente Kurusa <levex@linux.com>
  *
@@ -21,14 +21,14 @@
 
 #define BITS_TO_BYTES(x) (((x) % 8) ? ((x) / 8 + 1) : ((x) / 8))
 
-u8 *__BitStream_alloc_data(int len, gfp_t gfp)
+u8 *__bit_stream_alloc_data(int len, gfp_t gfp)
 {
 	return kzalloc(BITS_TO_BYTES(len), gfp);
 }
 
-struct BitStream *BitStream_allocate(int space, gfp_t gfp)
+struct bit_stream *bit_stream_allocate(int space, gfp_t gfp)
 {
-	struct BitStream *bstr;
+	struct bit_stream *bstr;
 	u8 *bitmap;
 
 	/* XXX */
@@ -43,7 +43,7 @@ struct BitStream *BitStream_allocate(int space, gfp_t gfp)
 	if (space == 0)
 		return bstr;
 
-	bitmap = __BitStream_alloc_data(space, gfp);
+	bitmap = __bit_stream_alloc_data(space, gfp);
 	if (!bitmap) {
 		kfree(bstr);
 		return NULL;
@@ -55,12 +55,12 @@ struct BitStream *BitStream_allocate(int space, gfp_t gfp)
 	return bstr;
 }
 
-struct BitStream *BitStream_new(void)
+struct bit_stream *bit_stream_new(void)
 {
-	return BitStream_allocate(128, GFP_ATOMIC);
+	return bit_stream_allocate(128, GFP_ATOMIC);
 }
 
-void BitStream_free(struct BitStream *bstr)
+void bit_stream_free(struct bit_stream *bstr)
 {
 	if (!bstr)
 		return;
@@ -68,7 +68,7 @@ void BitStream_free(struct BitStream *bstr)
 	kfree(bstr);
 }
 
-int BitStream_resize(struct BitStream *bstr, int nspace)
+int bit_stream_resize(struct bit_stream *bstr, int nspace)
 {
 	unsigned char *data;
 
@@ -92,7 +92,7 @@ int BitStream_resize(struct BitStream *bstr, int nspace)
 	return 0;
 }
 
-int __BitStream_get_bit(struct BitStream *bstr, int no)
+int __bit_stream_get_bit(struct bit_stream *bstr, int no)
 {
 	if (WARN_ON(no > bstr->length))
 		return 0;
@@ -100,12 +100,12 @@ int __BitStream_get_bit(struct BitStream *bstr, int no)
 	return (bstr->data[no / 8] & (1 << (no % 8))) ? 1 : 0;
 }
 
-int __BitStream_append_bit(struct BitStream *bstr, u8 bit)
+int __bit_stream_append_bit(struct bit_stream *bstr, u8 bit)
 {
 	int rc;
 
 	if (!bstr->data || bstr->length + 1 >= bstr->space) {
-		rc = BitStream_resize(bstr, bstr->space + 256);
+		rc = bit_stream_resize(bstr, bstr->space + 256);
 		if (rc)
 			return rc;
 	}
@@ -120,7 +120,7 @@ int __BitStream_append_bit(struct BitStream *bstr, u8 bit)
 	return 0;
 }
 
-int BitStream_appendBytes(struct BitStream *bstr, int bytes, u8 *data)
+int bit_stream_append_bytes(struct bit_stream *bstr, int bytes, u8 *data)
 {
 	int rc;
 	int i, j;
@@ -129,7 +129,7 @@ int BitStream_appendBytes(struct BitStream *bstr, int bytes, u8 *data)
 	for (i = 0; i < bytes; i++) {
 		mask = 0x80;
 		for (j = 0; j < 8; j++) {
-			rc = __BitStream_append_bit(bstr, data[i] & mask);
+			rc = __bit_stream_append_bit(bstr, data[i] & mask);
 			if (rc)
 				return rc;
 			mask = mask >> 1;
@@ -139,7 +139,7 @@ int BitStream_appendBytes(struct BitStream *bstr, int bytes, u8 *data)
 	return 0;
 }
 
-int BitStream_appendNum(struct BitStream *bstr, int bits, int num)
+int bit_stream_append_num(struct bit_stream *bstr, int bits, int num)
 {
 	int rc;
 	int i;
@@ -147,7 +147,7 @@ int BitStream_appendNum(struct BitStream *bstr, int bits, int num)
 
 	mask = 1 << (bits - 1);
 	for (i = 0; i < bits; i++) {
-		rc = __BitStream_append_bit(bstr, num & mask);
+		rc = __bit_stream_append_bit(bstr, num & mask);
 		if (rc)
 			return rc;
 		mask = mask >> 1;
@@ -156,12 +156,12 @@ int BitStream_appendNum(struct BitStream *bstr, int bits, int num)
 	return 0;
 }
 
-int BitStream_append(struct BitStream *dst, struct BitStream *src)
+int bit_stream_append(struct bit_stream *dst, struct bit_stream *src)
 {
 	int rc, i;
 
 	for (i = 0; i < src->length; i++) {
-		rc = __BitStream_append_bit(dst, __BitStream_get_bit(src, i));
+		rc = __bit_stream_append_bit(dst, __bit_stream_get_bit(src, i));
 		if (rc)
 			return rc;
 	}
@@ -169,7 +169,7 @@ int BitStream_append(struct BitStream *dst, struct BitStream *src)
 	return 0;
 }
 
-unsigned char *BitStream_toByte(struct BitStream *bstr)
+unsigned char *bit_stream_to_byte(struct bit_stream *bstr)
 {
 	unsigned char *data, v;
 	int i, j, size, bytes, p;
@@ -177,14 +177,14 @@ unsigned char *BitStream_toByte(struct BitStream *bstr)
 	data = kzalloc((bstr->length + 7) / 8, bstr->gfp);
 	if (!data)
 		return NULL;
-	size = BitStream_size(bstr);
+	size = bit_stream_size(bstr);
 	bytes = size / 8;
 	p = 0;
 	for (i = 0; i < bytes; i++) {
 		v = 0;
 		for (j = 0; j < 8; j++) {
 			v = v << 1;
-			v |= __BitStream_get_bit(bstr, p);
+			v |= __bit_stream_get_bit(bstr, p);
 			p++;
 		}
 		data[i] = v;
@@ -193,7 +193,7 @@ unsigned char *BitStream_toByte(struct BitStream *bstr)
 		v = 0;
 		for (j = 0; j < (size & 7); j++) {
 			v = v << 1;
-			v |= __BitStream_get_bit(bstr, p);
+			v |= __bit_stream_get_bit(bstr, p);
 			p++;
 		}
 		data[bytes] = v;

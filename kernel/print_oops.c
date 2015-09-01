@@ -136,7 +136,7 @@ void print_qr_err(void)
 	ssize_t compr_len;
 	struct fb_info *info;
 	struct fb_fillrect rect;
-	struct QRcode *qr;
+	struct qrcode *qr;
 	int i, j;
 	int w;
 	int is_black;
@@ -151,7 +151,7 @@ void print_qr_err(void)
 		return;
 	}
 
-	bug_in_code ++;
+	bug_in_code++;
 
 	info = registered_fb[0];
 	if (!info) {
@@ -162,11 +162,11 @@ void print_qr_err(void)
 	compr_len = qr_compress(qr_buffer, compr_qr_buffer, buf_pos, buf_pos);
 	if (compr_len < 0) {
 		printk(KERN_EMERG "Compression of QR code failed compr_len=%zd\n",
-			   compr_len);
+		       compr_len);
 		return;
 	}
 
-	qr = QRcode_encodeData(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
+	qr = qrcode_encode_data(compr_len, compr_qr_buffer, 0, QR_ECLEVEL_H);
 	if (!qr) {
 		printk(KERN_EMERG "Failed to encode data as a QR code!\n");
 		return;
@@ -185,6 +185,7 @@ void print_qr_err(void)
 		 * by overwriting the previous region with black
 		 */
 		struct fb_fillrect cl;
+
 		cl.width = qr_last_size;
 		cl.height = qr_last_size;
 		cl.rop = 0;
@@ -230,8 +231,8 @@ void print_qr_err(void)
 		}
 	}
 
-	QRcode_free(qr);
+	qrcode_free(qr);
 	qr_compr_exit();
 	buf_pos = 0;
-	bug_in_code --;
+	bug_in_code--;
 }

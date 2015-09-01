@@ -16,7 +16,6 @@
  *
  */
 
-
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/types.h>
@@ -25,15 +24,15 @@
 #include "qrspec.h"
 #include "mask.h"
 
-static int Mask_writeFormatInformation(int width, unsigned char *frame,
-				       int mask, enum QRecLevel level)
+static int mask_write_format_information(int width, unsigned char *frame,
+					 int mask, enum qrec_level level)
 {
 	unsigned int format;
 	unsigned char v;
 	int i;
 	int blacks = 0;
 
-	format = QRspec_getFormatInfo(mask, level);
+	format = qrspec_get_format_info(mask, level);
 
 	for (i = 0; i < 8; i++) {
 		if (format & 1) {
@@ -54,9 +53,9 @@ static int Mask_writeFormatInformation(int width, unsigned char *frame,
 		if (format & 1) {
 			blacks += 2;
 			v = 0x85;
-		} else
+		} else {
 			v = 0x84;
-
+		}
 		frame[width * (width - 7 + i) + 8] = v;
 		if (i == 0)
 			frame[width * 8 + 7] = v;
@@ -92,96 +91,103 @@ static int Mask_writeFormatInformation(int width, unsigned char *frame,
 			b += (int)(*d & 1);\
 			s++; d++;\
 		} \
-	} \
-	return b;
+	}
 
-static int Mask_mask0(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask0(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER((x + y) & 1)
+	return b;
 }
 
-static int Mask_mask1(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask1(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER(y & 1)
+	return b;
 }
 
-static int Mask_mask2(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask2(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER(x % 3)
+	return b;
 }
 
-static int Mask_mask3(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask3(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER((x + y) % 3)
+	return b;
 }
 
-static int Mask_mask4(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask4(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER(((y / 2) + (x / 3)) & 1)
+	return b;
 }
 
-static int Mask_mask5(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask5(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER(((x * y) & 1) + (x * y) % 3)
+	return b;
 }
 
-static int Mask_mask6(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask6(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER((((x * y) & 1) + (x * y) % 3) & 1)
+	return b;
 }
 
-static int Mask_mask7(int width, const unsigned char *s, unsigned char *d)
+static int mask_mask7(int width, const unsigned char *s, unsigned char *d)
 {
 	MASKMAKER((((x * y) % 3) + ((x + y) & 1)) & 1)
+	return b;
 }
 
-#define maskNum (8)
-typedef int MaskMaker(int, const unsigned char *, unsigned char *);
-static MaskMaker *maskMakers[maskNum] = {
-	Mask_mask0, Mask_mask1, Mask_mask2, Mask_mask3,
-	Mask_mask4, Mask_mask5, Mask_mask6, Mask_mask7
+#define MASKNUM (8)
+typedef int mask_maker(int, const unsigned char *, unsigned char *);
+static mask_maker *mask_makers[MASKNUM] = {
+	mask_mask0, mask_mask1, mask_mask2, mask_mask3,
+	mask_mask4, mask_mask5, mask_mask6, mask_mask7
 };
 
-unsigned char *Mask_makeMask(int width, unsigned char *frame, int mask,
-			     enum QRecLevel level)
+unsigned char *mask_make_mask(int width, unsigned char *frame, int mask,
+			      enum qrec_level level)
 {
 	unsigned char *masked;
 
-	if (mask < 0 || mask >= maskNum)
+	if (mask < 0 || mask >= MASKNUM)
 		return NULL;
 
 	masked = kmalloc(width * width, GFP_ATOMIC);
-	if (masked == NULL)
+	if (!masked)
 		return NULL;
 
-	maskMakers[mask] (width, frame, masked);
-	Mask_writeFormatInformation(width, masked, mask, level);
+	mask_makers[mask] (width, frame, masked);
+	mask_write_format_information(width, masked, mask, level);
 
 	return masked;
 }
 
-static int Mask_calcN1N3(int length, int *runLength)
+static int calc_n1_n3(int length, int *run_length)
 {
 	int i;
 	int demerit = 0;
 	int fact;
 
 	for (i = 0; i < length; i++) {
-		if (runLength[i] >= 5)
-			demerit += N1 + (runLength[i] - 5);
+		if (run_length[i] >= 5)
+			demerit += N1 + (run_length[i] - 5);
 		if ((i & 1)) {
-			if (i >= 3 && i < length - 2
-			    && (runLength[i] % 3) == 0) {
-				fact = runLength[i] / 3;
-				if (runLength[i - 2] == fact &&
-				    runLength[i - 1] == fact &&
-				    runLength[i + 1] == fact &&
-				    runLength[i + 2] == fact) {
-					if (i == 3
-					    || runLength[i - 3] >= 4 * fact) {
+			if (i >= 3 && i < length - 2 &&
+			    (run_length[i] % 3) == 0) {
+				fact = run_length[i] / 3;
+				if (run_length[i - 2] == fact &&
+				    run_length[i - 1] == fact &&
+				    run_length[i + 1] == fact &&
+				    run_length[i + 2] == fact) {
+					if (i == 3 ||
+					    run_length[i - 3] >= 4 * fact) {
 						demerit += N3;
-					} else if (i + 4 >= length
-						   || runLength[i + 3] >=
+					} else if (i + 4 >= length ||
+						   run_length[i + 3] >=
 						   4 * fact) {
 						demerit += N3;
 					}
@@ -193,7 +199,7 @@ static int Mask_calcN1N3(int length, int *runLength)
 	return demerit;
 }
 
-static int Mask_calcN2(int width, unsigned char *frame)
+static int mask_calc_n2(int width, unsigned char *frame)
 {
 	int x, y;
 	unsigned char *p;
@@ -215,8 +221,8 @@ static int Mask_calcN2(int width, unsigned char *frame)
 	return demerit;
 }
 
-static int Mask_calcRunLength(int width, unsigned char *frame, int dir,
-			      int *runLength)
+static int mask_calc_run_length(int width, unsigned char *frame, int dir,
+				int *run_length)
 {
 	int head;
 	int i;
@@ -225,20 +231,20 @@ static int Mask_calcRunLength(int width, unsigned char *frame, int dir,
 
 	pitch = (dir == 0) ? 1 : width;
 	if (frame[0] & 1) {
-		runLength[0] = -1;
+		run_length[0] = -1;
 		head = 1;
 	} else {
 		head = 0;
 	}
-	runLength[head] = 1;
+	run_length[head] = 1;
 	p = frame + pitch;
 
 	for (i = 1; i < width; i++) {
 		if ((p[0] ^ p[-pitch]) & 1) {
 			head++;
-			runLength[head] = 1;
+			run_length[head] = 1;
 		} else {
-			runLength[head]++;
+			run_length[head]++;
 		}
 		p += pitch;
 	}
@@ -246,60 +252,60 @@ static int Mask_calcRunLength(int width, unsigned char *frame, int dir,
 	return head + 1;
 }
 
-static int Mask_evaluateSymbol(int width, unsigned char *frame)
+static int mask_evaluate_symbol(int width, unsigned char *frame)
 {
 	int x, y;
 	int demerit = 0;
-	int runLength[QRSPEC_WIDTH_MAX + 1];
+	int run_length[QRSPEC_WIDTH_MAX + 1];
 	int length;
 
-	demerit += Mask_calcN2(width, frame);
+	demerit += mask_calc_n2(width, frame);
 
 	for (y = 0; y < width; y++) {
-		length =
-		    Mask_calcRunLength(width, frame + y * width, 0, runLength);
-		demerit += Mask_calcN1N3(length, runLength);
+		length = mask_calc_run_length(width, frame + y * width, 0,
+					      run_length);
+		demerit += calc_n1_n3(length, run_length);
 	}
 
 	for (x = 0; x < width; x++) {
-		length = Mask_calcRunLength(width, frame + x, 1, runLength);
-		demerit += Mask_calcN1N3(length, runLength);
+		length = mask_calc_run_length(width, frame + x, 1, run_length);
+		demerit += calc_n1_n3(length, run_length);
 	}
 
 	return demerit;
 }
 
-unsigned char *Mask_mask(int width, unsigned char *frame, enum QRecLevel level)
+unsigned char *mask_mask(int width, unsigned char *frame, enum qrec_level level)
 {
 	int i;
-	unsigned char *mask, *bestMask;
-	int minDemerit = INT_MAX;
+	unsigned char *mask, *best_mask;
+	int min_demerit = INT_MAX;
 	int blacks;
 	int bratio;
 	int demerit;
 	int w2 = width * width;
 
 	mask = kmalloc(w2, GFP_ATOMIC);
-	if (mask == NULL)
+	if (!mask)
 		return NULL;
-	bestMask = NULL;
+	best_mask = NULL;
 
-	for (i = 0; i < maskNum; i++) {
+	for (i = 0; i < MASKNUM; i++) {
 		demerit = 0;
-		blacks = maskMakers[i] (width, frame, mask);
-		blacks += Mask_writeFormatInformation(width, mask, i, level);
+		blacks = mask_makers[i] (width, frame, mask);
+		blacks += mask_write_format_information(width, mask, i, level);
 		bratio = (200 * blacks + w2) / w2 / 2;
 		demerit = (abs(bratio - 50) / 5) * N4;
-		demerit += Mask_evaluateSymbol(width, mask);
-		if (demerit < minDemerit) {
-			minDemerit = demerit;
-			kfree(bestMask);
-			bestMask = mask;
+		demerit += mask_evaluate_symbol(width, mask);
+		if (demerit < min_demerit) {
+			min_demerit = demerit;
+			kfree(best_mask);
+			best_mask = mask;
 			mask = kmalloc(w2, GFP_ATOMIC);
-			if (mask == NULL)
+			if (!mask)
 				break;
 		}
 	}
 	kfree(mask);
-	return bestMask;
+	return best_mask;
 }

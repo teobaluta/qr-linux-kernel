@@ -33,7 +33,7 @@
  * Version and capacity
  *****************************************************************************/
 
-struct QRspec_Capacity {
+struct qrspec_capacity {
 	int width;		/* Edge length of the symbol */
 	int words;		/* Data capacity (bytes) */
 	int remainder;		/* Remainder bit (bits) */
@@ -44,7 +44,8 @@ struct QRspec_Capacity {
  * Table of the capacity of symbols
  * See Table 1 (pp.13) and Table 12-16 (pp.30-36), JIS X0510:2004.
  */
-static const struct QRspec_Capacity qrspecCapacity[QRSPEC_VERSION_MAX + 1] = {
+static
+const struct qrspec_capacity qrspec_capacities[QRSPEC_VERSION_MAX + 1] = {
 	{0, 0, 0, {0, 0, 0, 0} },
 	{21, 26, 0, {7, 10, 13, 17} },	/* 1 */
 	{25, 44, 7, {10, 16, 22, 28} },
@@ -88,24 +89,25 @@ static const struct QRspec_Capacity qrspecCapacity[QRSPEC_VERSION_MAX + 1] = {
 	{177, 3706, 0, {750, 1372, 2040, 2430} }	/* 40 */
 };
 
-int QRspec_getDataLength(int version, enum QRecLevel level)
+int qrspec_get_data_length(int version, enum qrec_level level)
 {
-	return qrspecCapacity[version].words -
-	    qrspecCapacity[version].ec[level];
+	return qrspec_capacities[version].words -
+	    qrspec_capacities[version].ec[level];
 }
 
-int QRspec_getECCLength(int version, enum QRecLevel level)
+int qrspec_get_ecc_length(int version, enum qrec_level level)
 {
-	return qrspecCapacity[version].ec[level];
+	return qrspec_capacities[version].ec[level];
 }
 
-int QRspec_getMinimumVersion(int size, enum QRecLevel level)
+int qrspec_get_minimum_version(int size, enum qrec_level level)
 {
 	int i;
 	int words;
 
 	for (i = 1; i <= QRSPEC_VERSION_MAX; i++) {
-		words = qrspecCapacity[i].words - qrspecCapacity[i].ec[level];
+		words = qrspec_capacities[i].words -
+			qrspec_capacities[i].ec[level];
 		if (words >= size)
 			return i;
 	}
@@ -113,32 +115,32 @@ int QRspec_getMinimumVersion(int size, enum QRecLevel level)
 	return -1;
 }
 
-int QRspec_getWidth(int version)
+int qrspec_get_width(int version)
 {
-	return qrspecCapacity[version].width;
+	return qrspec_capacities[version].width;
 }
 
-int QRspec_getRemainder(int version)
+int qrspec_get_remainder(int version)
 {
-	return qrspecCapacity[version].remainder;
+	return qrspec_capacities[version].remainder;
 }
 
 /******************************************************************************
  * Length indicator
  *****************************************************************************/
 
-static const int lengthTableBits[4][3] = {
+static const int length_table_bits[4][3] = {
 	{10, 12, 14},
 	{9, 11, 13},
 	{8, 16, 16},
 	{8, 10, 12}
 };
 
-int QRspec_lengthIndicator(enum QRencodeMode mode, int version)
+int qrspec_length_indicator(enum qrencode_mode mode, int version)
 {
 	int l;
 
-	if (!QRinput_isSplittableMode(mode))
+	if (!qrinput_is_splittable_mode(mode))
 		return 0;
 	if (version <= 9)
 		l = 0;
@@ -147,16 +149,16 @@ int QRspec_lengthIndicator(enum QRencodeMode mode, int version)
 	else
 		l = 2;
 
-	return lengthTableBits[mode][l];
+	return length_table_bits[mode][l];
 }
 
-int QRspec_maximumWords(enum QRencodeMode mode, int version)
+int qrspec_maximum_words(enum qrencode_mode mode, int version)
 {
 	int l;
 	int bits;
 	int words;
 
-	if (!QRinput_isSplittableMode(mode))
+	if (!qrinput_is_splittable_mode(mode))
 		return 0;
 	if (version <= 9)
 		l = 0;
@@ -165,9 +167,8 @@ int QRspec_maximumWords(enum QRencodeMode mode, int version)
 	else
 		l = 2;
 
-	bits = lengthTableBits[mode][l];
+	bits = length_table_bits[mode][l];
 	words = (1 << bits) - 1;
-
 
 	return words;
 }
@@ -180,7 +181,7 @@ int QRspec_maximumWords(enum QRencodeMode mode, int version)
  * Table of the error correction code (Reed-Solomon block)
  * See Table 12-16 (pp.30-36), JIS X0510:2004.
  */
-static const int eccTable[QRSPEC_VERSION_MAX + 1][4][2] = {
+static const int ecc_table[QRSPEC_VERSION_MAX + 1][4][2] = {
 	{{0, 0}, {0, 0}, {0, 0}, {0, 0} },
 	{{1, 0}, {1, 0}, {1, 0}, {1, 0} },	/* 1 */
 	{{1, 0}, {1, 0}, {1, 0}, {1, 0} },
@@ -224,21 +225,22 @@ static const int eccTable[QRSPEC_VERSION_MAX + 1][4][2] = {
 	{{19, 6}, {18, 31}, {34, 34}, {20, 61} },	/* 40 */
 };
 
-void QRspec_getEccSpec(int version, enum QRecLevel level, int spec[5])
+void qrspec_get_ecc_spec(int version, enum qrec_level level, int spec[5])
 {
 	int b1, b2;
 	int data, ecc;
 
-	b1 = eccTable[version][level][0];
-	b2 = eccTable[version][level][1];
-	data = QRspec_getDataLength(version, level);
-	ecc = QRspec_getECCLength(version, level);
+	b1 = ecc_table[version][level][0];
+	b2 = ecc_table[version][level][1];
+	data = qrspec_get_data_length(version, level);
+	ecc = qrspec_get_ecc_length(version, level);
 
 	if (b2 == 0) {
 		spec[0] = b1;
 		spec[1] = data / b1;
 		spec[2] = ecc / b1;
-		spec[3] = spec[4] = 0;
+		spec[3] = 0;
+		spec[4] = 0;
 	} else {
 		spec[0] = b1;
 		spec[1] = data / (b1 + b2);
@@ -259,7 +261,7 @@ void QRspec_getEccSpec(int version, enum QRecLevel level, int spec[5])
  *
  * See Table 1 in Appendix E (pp.71) of JIS X0510:2004.
  */
-static const int alignmentPattern[QRSPEC_VERSION_MAX + 1][2] = {
+static const int alignment_pattern[QRSPEC_VERSION_MAX + 1][2] = {
 	{0, 0},
 	{0, 0}, {18, 0}, {22, 0}, {26, 0}, {30, 0},	/* 1-5 */
 	{34, 0}, {22, 38}, {24, 42}, {26, 46}, {28, 50},	/* 6-10 */
@@ -277,8 +279,8 @@ static const int alignmentPattern[QRSPEC_VERSION_MAX + 1][2] = {
  * @param width
  * @param ox,oy center coordinate of the pattern
  */
-static void QRspec_putAlignmentMarker(unsigned char *frame, int width, int ox,
-				      int oy)
+static void qrspec_put_alignment_marker(unsigned char *frame, int width, int ox,
+					int oy)
 {
 	static const unsigned char finder[] = {
 		0xa1, 0xa1, 0xa1, 0xa1, 0xa1,
@@ -300,39 +302,39 @@ static void QRspec_putAlignmentMarker(unsigned char *frame, int width, int ox,
 	}
 }
 
-static void QRspec_putAlignmentPattern(int version, unsigned char *frame,
-				       int width)
+static void qrspec_put_alignment_pattern(int version, unsigned char *frame,
+					 int width)
 {
 	int d, w, x, y, cx, cy;
 
 	if (version < 2)
 		return;
 
-	d = alignmentPattern[version][1] - alignmentPattern[version][0];
+	d = alignment_pattern[version][1] - alignment_pattern[version][0];
 	if (d < 0)
 		w = 2;
 	else
-		w = (width - alignmentPattern[version][0]) / d + 2;
+		w = (width - alignment_pattern[version][0]) / d + 2;
 
 	if (w * w - 3 == 1) {
-		x = alignmentPattern[version][0];
-		y = alignmentPattern[version][0];
-		QRspec_putAlignmentMarker(frame, width, x, y);
+		x = alignment_pattern[version][0];
+		y = alignment_pattern[version][0];
+		qrspec_put_alignment_marker(frame, width, x, y);
 		return;
 	}
 
-	cx = alignmentPattern[version][0];
+	cx = alignment_pattern[version][0];
 	for (x = 1; x < w - 1; x++) {
-		QRspec_putAlignmentMarker(frame, width, 6, cx);
-		QRspec_putAlignmentMarker(frame, width, cx, 6);
+		qrspec_put_alignment_marker(frame, width, 6, cx);
+		qrspec_put_alignment_marker(frame, width, cx, 6);
 		cx += d;
 	}
 
-	cy = alignmentPattern[version][0];
+	cy = alignment_pattern[version][0];
 	for (y = 0; y < w - 1; y++) {
-		cx = alignmentPattern[version][0];
+		cx = alignment_pattern[version][0];
 		for (x = 0; x < w - 1; x++) {
-			QRspec_putAlignmentMarker(frame, width, cx, cy);
+			qrspec_put_alignment_marker(frame, width, cx, cy);
 			cx += d;
 		}
 		cy += d;
@@ -347,7 +349,7 @@ static void QRspec_putAlignmentPattern(int version, unsigned char *frame,
  * Version information pattern (BCH coded).
  * See Table 1 in Appendix D (pp.68) of JIS X0510:2004.
  */
-static const unsigned int versionPattern[QRSPEC_VERSION_MAX - 6] = {
+static const unsigned int version_pattern[QRSPEC_VERSION_MAX - 6] = {
 	0x07c94, 0x085bc, 0x09a99, 0x0a4d3, 0x0bbf6, 0x0c762, 0x0d847, 0x0e60d,
 	0x0f928, 0x10b78, 0x1145d, 0x12a17, 0x13532, 0x149a6, 0x15683, 0x168c9,
 	0x177ec, 0x18ec4, 0x191e1, 0x1afab, 0x1b08e, 0x1cc1a, 0x1d33f, 0x1ed75,
@@ -355,12 +357,12 @@ static const unsigned int versionPattern[QRSPEC_VERSION_MAX - 6] = {
 	0x27541, 0x28c69
 };
 
-unsigned int QRspec_getVersionPattern(int version)
+unsigned int qrspec_get_version_pattern(int version)
 {
 	if (version < 7 || version > QRSPEC_VERSION_MAX)
 		return 0;
 
-	return versionPattern[version - 7];
+	return version_pattern[version - 7];
 }
 
 /******************************************************************************
@@ -368,19 +370,19 @@ unsigned int QRspec_getVersionPattern(int version)
  *****************************************************************************/
 
 /* See calcFormatInfo in tests/test_qrspec.c */
-static const unsigned int formatInfo[4][8] = {
+static const unsigned int format_info[4][8] = {
 	{0x77c4, 0x72f3, 0x7daa, 0x789d, 0x662f, 0x6318, 0x6c41, 0x6976},
 	{0x5412, 0x5125, 0x5e7c, 0x5b4b, 0x45f9, 0x40ce, 0x4f97, 0x4aa0},
 	{0x355f, 0x3068, 0x3f31, 0x3a06, 0x24b4, 0x2183, 0x2eda, 0x2bed},
 	{0x1689, 0x13be, 0x1ce7, 0x19d0, 0x0762, 0x0255, 0x0d0c, 0x083b}
 };
 
-unsigned int QRspec_getFormatInfo(int mask, enum QRecLevel level)
+unsigned int qrspec_get_format_info(int mask, enum qrec_level level)
 {
 	if (mask < 0 || mask > 7)
 		return 0;
 
-	return formatInfo[level][mask];
+	return format_info[level][mask];
 }
 
 /******************************************************************************
@@ -400,7 +402,7 @@ static unsigned char *frames[QRSPEC_VERSION_MAX + 1];
  * @param width
  * @param ox,oy upper-left coordinate of the pattern
  */
-static void putFinderPattern(unsigned char *frame, int width, int ox, int oy)
+static void put_finder_pattern(unsigned char *frame, int width, int ox, int oy)
 {
 	static const unsigned char finder[] = {
 		0xc1, 0xc1, 0xc1, 0xc1, 0xc1, 0xc1, 0xc1,
@@ -424,22 +426,22 @@ static void putFinderPattern(unsigned char *frame, int width, int ox, int oy)
 	}
 }
 
-static unsigned char *QRspec_createFrame(int version)
+static unsigned char *qrspec_create_frame(int version)
 {
 	unsigned char *frame, *p, *q;
 	int width;
 	int x, y;
 	unsigned int verinfo, v;
 
-	width = qrspecCapacity[version].width;
+	width = qrspec_capacities[version].width;
 	frame = kzalloc(width * width, GFP_ATOMIC);
-	if (frame == NULL)
+	if (!frame)
 		return NULL;
 
 	/* Finder pattern */
-	putFinderPattern(frame, width, 0, 0);
-	putFinderPattern(frame, width, width - 7, 0);
-	putFinderPattern(frame, width, 0, width - 7);
+	put_finder_pattern(frame, width, 0, 0);
+	put_finder_pattern(frame, width, width - 7, 0);
+	put_finder_pattern(frame, width, 0, width - 7);
 	/* Separator */
 	p = frame;
 	q = frame + width * (width - 7);
@@ -476,11 +478,11 @@ static unsigned char *QRspec_createFrame(int version)
 		q += width;
 	}
 	/* Alignment pattern */
-	QRspec_putAlignmentPattern(version, frame, width);
+	qrspec_put_alignment_pattern(version, frame, width);
 
 	/* Version information */
 	if (version >= 7) {
-		verinfo = QRspec_getVersionPattern(version);
+		verinfo = qrspec_get_version_pattern(version);
 
 		p = frame + width * (width - 11);
 		v = verinfo;
@@ -507,7 +509,7 @@ static unsigned char *QRspec_createFrame(int version)
 	return frame;
 }
 
-unsigned char *QRspec_newFrame(int version)
+unsigned char *qrspec_new_frame(int version)
 {
 	unsigned char *frame;
 	int width;
@@ -515,21 +517,21 @@ unsigned char *QRspec_newFrame(int version)
 	if (version < 1 || version > QRSPEC_VERSION_MAX)
 		return NULL;
 
-	if (frames[version] == NULL)
-		frames[version] = QRspec_createFrame(version);
-	if (frames[version] == NULL)
+	if (!frames[version])
+		frames[version] = qrspec_create_frame(version);
+	if (!frames[version])
 		return NULL;
 
-	width = qrspecCapacity[version].width;
+	width = qrspec_capacities[version].width;
 	frame = kmalloc(width * width, GFP_ATOMIC);
-	if (frame == NULL)
+	if (!frame)
 		return NULL;
 	memcpy(frame, frames[version], width * width);
 
 	return frame;
 }
 
-void QRspec_clearCache(void)
+void qrspec_clear_cache(void)
 {
 	int i;
 
