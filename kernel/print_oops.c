@@ -46,6 +46,7 @@ static char qr_buffer[MESSAGE_BUFSIZE];
 static int buf_pos;
 
 static DEFINE_MUTEX(compr_mutex);
+static DEFINE_MUTEX(qr_list_mutex);
 static struct z_stream_s stream;
 
 static int compr_init(void)
@@ -75,7 +76,8 @@ static int compress(void *in, void *out, size_t inlen, size_t outlen)
 	ret = zlib_deflateInit(&stream, COMPR_LEVEL);
 	if (ret != Z_OK)
 	{
-		printk(KERN_EMERG "qr_compress: zlib_deflateInit failed with ret = %d\n",ret);
+		printk("qr_compress: zlib_deflateInit failed with ret = %d\n",
+		       ret);
 		goto error;
 	}
 
@@ -89,21 +91,21 @@ static int compress(void *in, void *out, size_t inlen, size_t outlen)
 	ret = zlib_deflate(&stream, Z_FINISH);
 	if (ret != Z_STREAM_END)
 	{
-		printk(KERN_EMERG "qr_compress: zlib_deflate failed with ret = %d\n", ret);
+		printk("qr_compress: zlib_deflate failed with ret = %d\n", ret);
 		goto error;
 	}
 
 	ret = zlib_deflateEnd(&stream);
 	if (ret != Z_OK)
 	{
-		printk(KERN_EMERG "qr_compress: zlib_deflateEnd failed with ret = %d\n", ret);
+		printk("qr_compress: zlib_deflateEnd failed with ret = %d\n",
+		       ret);
 		goto error;
 	}
 
 	if (stream.total_out >= stream.total_in)
 	{
-		printk(KERN_EMERG "qr_compress: total_out>total_in\n");
-		//goto error;
+		printk(KERN_EMERG "qr_compress: total_out > total_in\n");
 	}
 
 	ret = stream.total_out;
@@ -174,9 +176,9 @@ static inline void draw_qr(struct fb_info *info, struct qrcode *qr,
 }
 
 #define ASCII_BLACK " "
-#define ASCII_BLOCK "%c",219
-#define ASCII_HALFBLOCK_TOP	"%c",223
-#define ASCII_HALFBLOCK_BOTTOM	"%c",220
+#define ASCII_BLOCK "%c", 219
+#define ASCII_HALFBLOCK_TOP	"%c", 223
+#define ASCII_HALFBLOCK_BOTTOM	"%c", 220
 
 static inline int qr_is_black(struct qrcode *qr, int x, int y)
 {
@@ -228,9 +230,9 @@ static struct task_struct *qr_thread;
 
 #define BUFFER_SIZE	4*1024
 
-void push_qr(struct qr_list_element *element)
+static inline void qr_list_push(struct qr_list_element *element)
 {
-	if(!qr_list_head) {
+	if (!qr_list_head) {
 		qr_list_head = element;
 		qr_list_head->next = element;
 		qr_list_head->prev = element;
@@ -242,6 +244,76 @@ void push_qr(struct qr_list_element *element)
 	}
 }
 
+static inline struct qr_list_element *qr_list_delete(
+	struct qr_list_element *element)
+{
+	struct qr_list_element *next;
+	next = element->next;
+
+	element->prev->next = element->next;
+	element->next->prev = element->prev;
+
+	if (qr_list_head == element)
+	{
+		if(element->prev == element) {
+			qr_list_head = 0;
+			next = 0;
+		} else {
+			qr_list_head = element->prev;
+		}
+	}
+
+	vfree(element);
+
+	return next;
+}
+
+static void qr_list_delete_message(int message_id)
+{
+	struct qr_list_element *it;
+
+	mutex_lock(&qr_list_mutex);
+	it = qr_list_head;
+	do {
+		if (it->message_id == message_id)
+			it = qr_list_delete(it);
+		else
+			it = it->next;
+	} while (it != qr_list_head);
+	if (qr_list_head && qr_list_head->message_id == message_id)
+		qr_list_delete(qr_list_head);
+	mutex_unlock(&qr_list_mutex);
+}
+
+static void qr_list_clear(void)
+{
+	struct qr_list_element *it;
+
+	mutex_lock(&qr_list_mutex);
+	it = qr_list_head;
+	do {
+		it = qr_list_delete(it);
+	} while (it != qr_list_head);
+	if (qr_list_head)
+		qr_list_delete(qr_list_head);
+	mutex_unlock(&qr_list_mutex);
+}
+
+static void qr_list_delete_packet(int message_id, int packet_id)
+{
+	struct qr_list_element *it;
+
+	mutex_lock(&qr_list_mutex);
+	it = qr_list_head;
+	do {
+		if (it->message_id == message_id && it->packet_id == packet_id)
+			it = qr_list_delete(it);
+		else
+			it = it->next;
+	} while (it != qr_list_head);
+	mutex_unlock(&qr_list_mutex);
+}
+
 #define BK1_MAGIC_FIRSTBYTE 222
 #define BK1_MAGIC_SECONDBYTE 173
 
@@ -250,8 +322,8 @@ void push_qr(struct qr_list_element *element)
 
 #define BK1_VERSION 0
 
-void make_bk1_packet(char *start, int len, int message_id,
-		     int packet_id, int packet_count)
+static void make_bk1_packet(char *start, int len, int message_id,
+		     	    int packet_id, int packet_count)
 {
 	struct qr_list_element *element;
 	int header_size;
@@ -307,7 +379,9 @@ void make_bk1_packet(char *start, int len, int message_id,
 		goto ERROR;
 	}
 
-	push_qr(element);
+	mutex_lock(&qr_list_mutex);
+	qr_list_push(element);
+	mutex_unlock(&qr_list_mutex);
 
 	return;
 ERROR:
@@ -319,21 +393,29 @@ int tar_step;
 
 static inline void tar_strategy_next_step(void)
 {
+	if (!qr_list_head)
+		return;
+
 	++tar_step;
-	if (tar_step == 4) {
+	if (tar_step == 4)
 		tar_step = 0;
-	}
 
 	if (tar_step == 0) {
+		mutex_lock(&qr_list_mutex);
 		tar_slow = tar_slow->next;
+		mutex_unlock(&qr_list_mutex);
 		tar_current = tar_slow;
 	} else if(tar_step == 1) {
 		tar_current = tar_slow;
 	} else if(tar_step == 2) {
+		mutex_lock(&qr_list_mutex);
 		tar_fast = tar_fast->next;
+		mutex_unlock(&qr_list_mutex);
 		tar_current = tar_fast;
 	} else if(tar_step == 3) {
+		mutex_lock(&qr_list_mutex);
 		tar_fast = tar_fast->next;
+		mutex_unlock(&qr_list_mutex);
 		tar_current = tar_fast;
 	}
 }
@@ -348,12 +430,18 @@ static inline void tar_strategy_init(void)
 
 static inline struct qrcode *tar_strategy_get_qrcode(void)
 {
-	return tar_current->qr;
+	if (tar_current)
+		return tar_current->qr;
+	return 0;
 }
 
 #define MESSAGE_DEFAULT_PACKET_SIZE 300
 
-void make_bk1_message(void)
+static DEFINE_MUTEX(message_count_mutex);
+
+static int message_count = 0;
+
+static void make_bk1_message(void)
 {
 	int remaining_bytes;
 	int packet_length;
@@ -362,12 +450,14 @@ void make_bk1_message(void)
 	int packet_id;
 	int message_id;
 
-	message_id = 1;
+	mutex_lock(&message_count_mutex);
+	++message_count;
+	message_id = message_count;
+	mutex_unlock(&message_count_mutex);
 
 	packet_count = buf_pos / MESSAGE_DEFAULT_PACKET_SIZE;
-	if(buf_pos % MESSAGE_DEFAULT_PACKET_SIZE) {
+	if(buf_pos % MESSAGE_DEFAULT_PACKET_SIZE)
 		++packet_count;
-	}
 
 	left = 0;
 	packet_id = 0;
@@ -380,6 +470,72 @@ void make_bk1_message(void)
 		make_bk1_packet(qr_buffer + left, packet_length, message_id,
 				packet_id, packet_count);
 		left += packet_length;
+	}
+}
+
+static void print_messages(void)
+{
+	struct qr_list_element *it = qr_list_head;
+	int last_message_id = -1;
+
+	printk("QR: ids of messages in queue: ");
+	do {
+		if (it->message_id != last_message_id) {
+			last_message_id = it->message_id;
+			printk("%d ", last_message_id);
+		}
+		it = it->next;
+	} while (it != qr_list_head);
+	printk("\n");
+}
+
+static void print_packets(void)
+{
+	struct qr_list_element *it = qr_list_head;
+
+	printk("QR: packets in queue <message, packet>: ");
+	do {
+		printk("<%d, %d> ", it->message_id, it->packet_id);
+		it = it->next;
+	} while (it != qr_list_head);
+	printk("\n");
+}
+
+static void print_packets_by_msg(int message_id)
+{
+	struct qr_list_element *it = qr_list_head = qr_list_head;
+
+	printk("QR: packets in queue for message with id %d: ", message_id);
+	do {
+		if (it->message_id == message_id)
+			printk("%d ", it->packet_id);
+		it = it->next;
+	} while (it != qr_list_head);
+	printk("\n");
+}
+
+static struct fb_info *info;
+static struct fb_fillrect rect;
+static int qr_total_width = 0;
+static int qr_offset_x = 0;
+static int qr_offset_y = 0;
+
+static void clear_last_qr(void)
+{
+	if(info) {
+		printk("QR: framebuffer clear\n");
+
+		console_lock();
+
+		rect.width = qr_total_width;
+		rect.height = qr_total_width;
+		rect.dx = qr_offset_x;
+		rect.dy = qr_offset_y;
+		rect.rop = 0;
+		rect.color = QQQ_BLACK;
+		cfb_fillrect(info, &rect);
+
+		console_unlock();
 	}
 }
 
@@ -396,13 +552,8 @@ void make_bk1_message(void)
 
 int qr_thread_func(void* data)
 {
-	struct fb_info *info;
-	struct fb_fillrect rect;
 	struct qrcode *curr_qr = 0;
 	int w;
-	int qr_total_width = 0;
-	int qr_offset_x = 0;
-	int qr_offset_y = 0;
 	int last_time;
 	int time_accumulator;
 	int time_now;
@@ -413,10 +564,13 @@ int qr_thread_func(void* data)
 	int param0 = 0;
 	int param1 = 0;
 
+	qr_total_width = 0;
+	qr_offset_x = 0;
+	qr_offset_y = 0;
+
 	info = registered_fb[0];
-	if (!info) {
-		printk(KERN_WARNING "QR: Unable to get hand of a framebuffer!\n");
-	}
+	if (!info)
+		printk("QR: Unable to get hand of a framebuffer!\n");
 
 	tar_strategy_init();
 
@@ -439,41 +593,48 @@ int qr_thread_func(void* data)
 		param0 = qr_oops_param0;
 		param1 = qr_oops_param1;
 
+		if (cmd != QR_OOPS_CMD_NOTHING) {
+			qr_oops_param0 = 0;
+			qr_oops_param1 = 0;
+		}
+
 		switch (cmd) {
 		case QR_OOPS_CMD_NOTHING:
 			break;
 		case QR_OOPS_CMD_PRINT_MESSAGES:
+			print_messages();
 			break;
 		case QR_OOPS_CMD_PRINT_PACKETS:
+			if (param0)
+				print_packets_by_msg(param0);
+			else
+				print_packets();
 			break;
 		case QR_OOPS_CMD_DELETE_MESSAGE:
+			qr_list_delete_message(param0);
+			tar_strategy_init();
+			break;
+		case QR_OOPS_CMD_DELETE_PACKET:
+			qr_list_delete_packet(param0, param1);
+			tar_strategy_init();
 			break;
 		case QR_OOPS_CMD_PAUSE:
 			if (!paused) {
 				paused = 1;
-				if(info) {
-					printk("QR: framebuffer clear\n");
-
-					console_lock();
-
-					rect.width = qr_total_width;
-					rect.height = qr_total_width;
-					rect.dx = qr_offset_x;
-					rect.dy = qr_offset_y;
-					rect.rop = 0;
-					rect.color = QQQ_BLACK;
-					cfb_fillrect(info, &rect);
-
-					console_unlock();
-				}
+				clear_last_qr();
 			}
 			break;
 		case QR_OOPS_CMD_RESUME:
 			paused = 0;
 			break;
 		case QR_OOPS_CMD_CLEAR_QUEUE:
+			qr_list_clear();
+			tar_strategy_init();
 			break;
 		case QR_OOPS_CMD_STOP:
+			/*
+			 *  Not implemented
+			 */
 			break;
 		default:
 			printk("QR: invalid command: %d\n", qr_oops_cmd);
@@ -498,8 +659,11 @@ int qr_thread_func(void* data)
 				printk("QR: force console flush\n");
 		}
 
-		if(!curr_qr)
+		if (!curr_qr) {
+			if(changed)
+				clear_last_qr();
 			continue;
+		}
 
 		if (info) {
 			console_lock();
