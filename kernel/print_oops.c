@@ -415,8 +415,7 @@ int qr_thread_func(void* data)
 
 	info = registered_fb[0];
 	if (!info) {
-		printk(KERN_WARNING "Unable to get hand of a framebuffer!\n");
-		return -1;
+		printk(KERN_WARNING "QR: Unable to get hand of a framebuffer!\n");
 	}
 
 	tar_strategy_init();
@@ -450,7 +449,24 @@ int qr_thread_func(void* data)
 		case QR_OOPS_CMD_DELETE_MESSAGE:
 			break;
 		case QR_OOPS_CMD_PAUSE:
-			paused = 1;
+			if (!paused) {
+				paused = 1;
+				if(info) {
+					printk("QR: framebuffer clear\n");
+
+					console_lock();
+
+					rect.width = qr_total_width;
+					rect.height = qr_total_width;
+					rect.dx = qr_offset_x;
+					rect.dy = qr_offset_y;
+					rect.rop = 0;
+					rect.color = QQQ_BLACK;
+					cfb_fillrect(info, &rect);
+
+					console_unlock();
+				}
+			}
 			break;
 		case QR_OOPS_CMD_RESUME:
 			paused = 0;
@@ -473,8 +489,7 @@ int qr_thread_func(void* data)
 			time_accumulator -= QR_THREAD_TIME_STEP;
 
 			tar_strategy_next_step();
-			if (curr_qr != tar_strategy_get_qrcode())
-			{
+			if (curr_qr != tar_strategy_get_qrcode()) {
 				curr_qr = tar_strategy_get_qrcode();
 				changed = 1;
 			}
