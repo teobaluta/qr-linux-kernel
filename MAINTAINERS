@@ -8528,6 +8528,7 @@ F:	include/uapi/linux/qnx4_fs.h
 F:	include/uapi/linux/qnxtypes.h
 
 QR ENCODING LIBRARY
+M:	Murtaza Alexandru <alexandru.murtaza@intel.com>
 M:	Teodora Baluta <teobaluta@gmail.com>
 M:	Levente Kurusa <levex@linux.com>
 S:	Maintained
